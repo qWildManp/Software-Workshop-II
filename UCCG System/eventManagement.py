@@ -1,0 +1,224 @@
+from wtforms import Form, StringField, validators, RadioField,IntegerField
+from flask import Flask, render_template, request, redirect, url_for
+from DatabaseOperation import DatabaseOperations
+
+app = Flask(__name__)
+
+
+
+
+
+class EventForm(Form):
+    game_type = RadioField('game_type', [validators.data_required])
+    game_limit = RadioField('game_limit',[validators.data_required])
+    match_name = StringField('match_name', [validators.data_required])
+
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/ScheduleManagement')
+def schedule_mange():
+    return render_template('ScheduleManagement.html')
+
+
+@app.route('/CreateSchedule', methods=['GET', 'POST'])
+def schedule():
+    form = EventForm(request.form)
+    if request.method == 'POST':
+        max = int(request.form.get('max_num'))
+        insert_result = DatabaseOperations().upload_event(form.game_type.data, form.match_name.data,max,form.game_limit.data)
+        if (insert_result == 1):
+            message = "Insert Success!!"
+            alert = "alert-success"
+            location = "ScheduleManagement"
+            return render_template('Result.html', message=message, alert=alert, location=location)
+        elif (insert_result == 0):
+            message = "Fail to insert (match ahs already exist)!!"
+            alert = "alert-danger"
+            location = "ScheduleManagement"
+            return render_template('Result.html', message=message, alert=alert, location=location)
+
+        return render_template('CreateSchedule.html', max=form.game_limit.data)
+    else:
+        return render_template('CreateSchedule.html')
+
+
+
+
+@app.route('/editTime/<string:back>')
+def time_back(back):
+    return redirect(url_for('find_event'))
+
+
+@app.route('/editTime/<int:game_id>', methods=['GET', 'POST'])
+def time_change(game_id):
+    sql = DatabaseOperations()
+    if (sql.check_condition(int(game_id)) == 0):
+        message = "Fail to edit (event only can be edited when it is on matching)!!"
+        alert = "alert-danger"
+        location = "EditSchedule"
+        return render_template('Result.html', message=message, alert=alert, location=location)
+    is_bye = request.form.get('bye')
+    infor = request.form.get('infor')
+    date = str(request.form.get('date'))
+    date_ymd = date[0:10]
+    date_clock = date[11:]
+    date_str = date_ymd + " " + date_clock
+    if request.method == 'POST':
+        if (is_bye == None):
+            infor = infor.split('/')
+            one_id = int(infor[0])
+            two_id = int(infor[1])
+            sql.upload_arrange(one_id, two_id, game_id, date_str)
+        elif (infor == None):
+            id = int(is_bye)
+            nullvalue = 0
+            sql.upload_arrange(id, nullvalue, game_id, nullvalue)
+        return render_template('editTime.html', event_name=sql.find_event_name(game_id),
+                               count=sql.count_participant(game_id),
+                               match_team_pair=sql.get_team_pair(game_id),
+                               view=sql.view_arrange(game_id),
+                               view_bye=sql.view_bye(game_id))
+    else:
+        return render_template('editTime.html', event_name=sql.find_event_name(game_id),
+                               count=sql.count_participant(game_id),
+                               match_team_pair=sql.get_team_pair(game_id),
+                               view=sql.view_arrange(game_id)
+                               , view_bye=sql.view_bye(game_id))
+
+
+@app.route('/editScore/<string:back>')
+def score_back(back):
+    return redirect(url_for('find_event'))
+
+
+@app.route('/editScore/<int:game_id>', methods=['GET', 'POST'])
+def score_index(game_id):
+    sql = DatabaseOperations()
+    if sql.check_condition(int(game_id)) == 0:
+        message = "Fail to edit (event only can be edited when it is on matching)!!"
+        alert = "alert-danger"
+        location = "EditSchedule"
+        return render_template('Result.html', message=message, alert=alert, location=location)
+
+    if request.method == 'POST':
+        one_score = int(request.form.get('team_one_score'))
+        two_score = int(request.form.get('team_two_score'))
+        infor = request.form.get('infor').split('/')
+        one_id = int(infor[0])
+        two_id = int(infor[1])
+        match_id = int(sql.find_match_id(one_id, two_id, game_id))
+        sql.upload_score(match_id, game_id, one_score, two_score)
+        return render_template('editScore.html', event_name=sql.find_event_name(game_id),
+                               match_team_pair=sql.view_arrange(game_id),
+                               view_score=sql.view_score(game_id),match_id = match_id)
+    else:
+        return render_template('editScore.html', event_name=sql.find_event_name(game_id),
+                               match_team_pair=sql.view_arrange(game_id),
+                               view_score=sql.view_score(game_id))
+
+
+@app.route('/EditSchedule', methods=['GET', 'POST'])
+def find_event():
+    sql = DatabaseOperations()
+    if request.method == 'POST':
+        game_name = request.form.get('game_name')
+        delete_result = sql.delete_event(game_name)
+        if delete_result == "success":
+            alert = "alert-success"
+            return render_template('EditSchedule.html', events=sql.find_event(), alert=alert)
+        elif delete_result == 'fail':
+            alert = "alert-danger"
+            return render_template('EditSchedule.html', events=sql.find_event(), alert=alert)
+        else:
+            alert = 'notfound'
+            return render_template('EditSchedule.html', events=sql.find_event(), alert=alert)
+    else:
+        return render_template('EditSchedule.html', events=sql.find_event())
+
+@app.route('/EditSchedule/<string:game_id_change>', methods=['GET', 'POST'])
+def change_condition(game_id_change):
+    sql = DatabaseOperations()
+    game_id = game_id_change[5:]
+    game_change_condition = game_id_change[0:5]
+    if (game_change_condition == 'start' or game_change_condition == 'endit' or game_change_condition == 'reset'):
+        game_id = int(game_id)
+        sql.change_condition(game_change_condition, game_id)
+        return redirect(url_for('find_event'))
+    else:
+        return redirect(url_for('find_event'))
+
+
+
+
+def table_attribute(table, num):
+    if table == 'game':
+        if num == 1:
+            return 'GAME_ID'
+        if num == 2:
+            return 'GAME_NAME'
+        if num == 3:
+            return 'GAME_TYPE'
+        if num == 4:
+            return 'GAME_DATE'
+        if num == 5:
+            return 'GAME_CONDITION'
+    elif table == 'team':
+        if num == 1:
+            return 'TEAM_ID'
+        if num == 2:
+            return 'TEAM_NAME'
+        if num == 3:
+            return 'CAPTAIN_ACCOUNT'
+    elif table == 'user':
+        if num == 1:
+            return 'STUDENT_ID'
+        if num == 2:
+            return 'EMAIL'
+        if num == 3:
+            return 'PHONE_NO'
+        if num == 4:
+            return 'USER_NAME'
+        if num == 5:
+            return 'SECURITY_QUESTION_ANSWER'
+        if num == 6:
+            return 'PERMISSION'
+
+@app.route('/AdministratorInformationEditingPage', methods=['GET', 'POST'])
+def information_edit():
+    if request.method == 'POST':
+        table_name = request.form.get('tableName')
+        if table_name == 'g' or table_name == 't' or table_name == 'u':
+            if table_name == 'g':
+                table = 'game'
+            elif table_name == 't':
+                table = 'team'
+            else:
+                table = 'user'
+            sql = 'select * from ' + table + ' where 1';
+            i = 0
+            while True:
+                attribute = table + 'Attribute' + str(i)
+                if not request.form.get(attribute):
+                    break
+                attribute_name = table_attribute(table, int(request.form.get(attribute)))
+
+                sql += ' and ' + attribute_name + request.form.get('signal' + str(i)) + '\'' + request.form.get(
+                    'input' + str(i)) + '\''
+                i += 1
+            result = DatabaseOperations().admin_requirement(sql, 'query')
+
+        else:
+            sql = 'update user set PERMISSION =' + table_name + ' where student_id = ' + request.form.get('studentId')
+            DatabaseOperations().admin_requirement(sql, 'update')
+            result = 'success'
+            table = ''
+
+        return render_template('AdministratorInformationEditingPage.html', result=result, table=table)
+
+    else:
+        return render_template('AdministratorInformationEditingPage.html')

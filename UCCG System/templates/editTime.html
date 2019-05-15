@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Welcome to UCCG Manage System</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+<body>
+
+
+<div class="container" style="margin-left: auto;margin-right: auto;">
+    <br>
+    <h1 class="h1 mb-3 font-weight-normal text-center">Edit the competition time of {{ event_name }} below: There is(are) {{ (count[0])[1] }} participant(s)</h1>
+    <br>
+
+    <table class="col-10 table-striped" style="margin:auto;text-align:center;">
+        {% for row in match_team_pair  %}
+            {% if row[3] == None %}
+                <tr>
+                    <form accept-charset="UTF-8" role="form"  method="post">
+                        <th>{{ row[1] }}</th>
+                        <td>
+                            <div class="col-12">
+                                <br>
+                                <input type="text" placeholder="Bye this round" class="form-control" disabled>
+                                <input value = "{{ row[0] }}" name="bye" type="radio"  style="display: none" checked ><br>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="col-12">
+                                <button class="btn btn-primary">Submit</button>
+                            </div>
+                        </td>
+                    </form>
+                </tr>
+            {% else %}
+                <tr>
+                    <form accept-charset="UTF-8" role="form"  method="post">
+                        <th>{{ row[1] }} VS {{ row[3] }}</th>
+                        <td>
+                            <div class="col-12">
+                                <br>
+                                <input name="date"  type="datetime-local" min="1999-01-01T00:00" max="9999-12-30T23:59" class="form-control" required>
+                                <input type="radio" name="infor" value="{{ row[0] }}/{{ row[2] }}"  style="display: none" checked><br>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="col-12">
+                                <button class="btn btn-primary">Submit</button>
+                            </div>
+                        </td>
+                    </form>
+              </tr>
+            {% endif %}
+        {% endfor %}
+    </table><br><br>
+    <table class="col-10 table-striped" style="margin:auto;text-align:center;">
+        <tr><th>TEAM/PLAYER ONE</th><th>TEAM/PLAYER TWO</th><th>TIME</th></tr>
+    {% if view != None %}
+        {% for each in view %}
+            <tr><td>{{ each[1] }}</td><td>{{ each[3] }}</td><td>{{ each[4] }}</td></tr>
+        {% endfor %}
+    {% endif %}
+    </table>
+    <br><br>
+    <table class="col-10 table" style="margin:auto;text-align:center;">
+        <tr><th>BYE</th></tr>
+        {% if view_bye != None %}
+            {% for each in view_bye %}
+                <tr><td>{{ each[0] }}</td></tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+    <a class="btn btn-primary" href="EditSchedule">Back</a>
+</div>
+<br><br>
+<p class="mt-5 mb-3 text-muted text-center">©UIC-UCAS 2017-2019</p>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+</html>

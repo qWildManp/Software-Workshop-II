@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Personal Information</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+        <img src="../static/CDS_LOGO.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#homeNavbar"
+            aria-controls="homeNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="homeNavbar">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Schedule</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Introduction</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">History about Us</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    User Page
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="Personal Information"><img src="../static/用户符号.svg" height="30"
+                                                                              width="30">Personal Information</a>
+                    <a class="dropdown-item" href="CompetitionSignUpPage"><img src="../static/handle.svg" height="30" width="30">Competition Sign
+                        up</a>
+                    <a class="dropdown-item" href="Team Registration"><img src="../static/标靶.svg" height="30" width="30">Player Registration</a>
+                </div>
+            </li>
+        </ul>
+        <ul class="navbar-nav nav-right">
+            <li class="nav-item">
+                <a class="nav-link" href="Personal Information.html">Hi, {{ Name }}</a></li>
+            <li class="nav-item">
+                <a class="nav-link" href="Login">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="row"><br></div>
+<div class="row">
+    <div class="col-xs-1 col-md-1"></div>
+    <div class="col-xs-10 col-md-10">
+        <h3 class="font-weight-normal padding-top:10px">Your Information </h3><br>
+        <div class="container-fluid bg-light"
+             style="border:1px solid steelblue;padding-bottom: 10px ;padding-top: 10px">
+            <div class="row">
+                <div class="col-xs-9 col-md-9">
+                    Name : {{ Name }}<br><br>
+                    Student ID:{{ ID }}<br><br>
+                    E-mail Address: {{ Email }}<br><br>
+                    Phone Number :{{ Phone }}<br><br>
+                    Question one : {{ Q1 }}<br><br>
+                    Answer : {{ A1 }}<br><br>
+                    Question two :{{ Q2 }}<br><br>
+                    Answer : {{ A2 }}
+                </div>
+                <div class="col-xs-2 col-md-2">
+                    <button class="btn btn-block btn-warning" data-toggle="modal" data-target="#logoutModal1">Edit</button>
+                </div></div>
+        </div>
+        <div class="row"><br><br></div>
+        <div class="row">
+            <div class="container-fluid bg-light" style="border:1px solid steelblue;padding-bottom: 10px ;padding-top: 10px">
+                <h4 class="font-weight-normal">Teammates Status</h4>
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Forbidden</th>
+                        <th scope="col">Position</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if tableDatas %}
+                        {% for i in tableDatas %}
+                            <tr>
+                                {% for j in i %}
+                                    <td>{{j}}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" >No Information</td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table><hr>
+                <div class="row"><br></div>
+                {% if Authority== 2 %}
+                <form accept-charset="UTF-8" role="form" action="{{ url_for('inforEdit') }}" method="post">
+                    <h4 class="fon-weight-normal">Leader Transformation:</h4><br>
+                    <div class="form-group col-sm-4">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="inputGroupSelect01">Select a new Leader:</label>
+                            </div>
+                            <select class="custom-select" name="selectLeader" id="inputGroupSelect01">
+                                {% if tableDatas %}
+                                <option placeholder="Choose one..." selected>Choose one...</option>
+                                    {% for i in tableDatas %}
+                                        <option value="{{i[0]}}">{{i[1]}}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Input the new Leader's student ID:</label>
+                            <input type="text" class="form-control" name="newLeader" id="formGroupExampleInput1" aria-describedby="nameHelp" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Input your password:</label>
+                            <input type="password" class="form-control" name="currentPassword" id="formGroupExampleInput" aria-describedby="nameHelp" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="submit">Submit</button>
+                            <strong>{{ message }}</strong>
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-1 col-md-1"></div>
+    <div class="modal fade" id="logoutModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update your Information</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form accept-charset="UTF-8" role="form" action="{{ url_for('inforEdit') }}" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Name</label>
+                            <input type="text" class="form-control" name="newname" id="formGroupExampleInput" aria-describedby="nameHelp" placeholder="{{Name}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Email Address</label>
+                            <input type="text" class="form-control" name="newaddress" id="formGroupExampleInput" placeholder="{{Email}}">
+                        </div>
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Phone number</label>
+                            <input type="text" class="form-control" name="newnumber" id="formGroupExampleInput" placeholder="{{Phone}}">
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="inputGroupSelect01">Security Question 1:</label>
+                                </div>
+                                <select class="custom-select" name="newQ1" id="inputGroupSelect01">
+                                    {% if Q1=="Q1" %}
+                                    <option value="Q1" selected>One</option>
+                                    <option value="Q2">Two</option>
+                                    <option value="Q3">Three</option>
+                                    {% elif Q1=="Q2" %}
+                                    <option value="Q1">One</option>
+                                    <option value="Q2" selected>Two</option>
+                                    <option value="Q3">Three</option>
+                                    {% else %}
+                                    <option value="Q1">One</option>
+                                    <option value="Q2" selected>Two</option>
+                                    <option value="Q3" selected>Three</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="newA1" id="formGroupExampleInput" placeholder="{{A1}}">
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="inputGroupSelect01">Security Question 2:</label>
+                                </div>
+                                <select class="custom-select" name="newQ2" id="inputGroupSelect01">
+                                    {% if Q2=="Q1" %}
+                                    <option value="Q1" selected>One</option>
+                                    <option value="Q2">Two</option>
+                                    <option value="Q3">Three</option>
+                                    {% elif Q2=="Q2" %}
+                                    <option value="Q1">One</option>
+                                    <option value="Q2" selected>Two</option>
+                                    <option value="Q3">Three</option>
+                                    {% else %}
+                                    <option value="Q1">One</option>
+                                    <option value="Q2" selected>Two</option>
+                                    <option value="Q3" selected>Three</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="newA2" id="formGroupExampleInput" placeholder="{{A2}}">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Save</button>
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<p class="mt-5 mb-3 text-muted text-center">©UIC-UCAS 2017-2019</p>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>

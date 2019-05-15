@@ -1,0 +1,307 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Administrator Information Editing</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .btn-circle.btn-lg {
+            width: 40px;
+            height: 40px;
+            padding: 10px 16px;
+            font-size: 18px;
+            line-height: 1.33;
+            border-radius: 25px;
+        }
+    </style>
+    <script language="JavaScript">
+        function deleteQueryLine() {
+            var rows = document.getElementById('table1').rows.length;
+            document.getElementById("table1").deleteRow(rows - 1);
+        }
+
+        function addQueryline() {
+            var rows = document.getElementById('table1').rows.length;
+
+            var insertTr = document.getElementById("table1").insertRow(rows);
+            var insertTd = insertTr.insertCell(0);
+
+            switch (queryForm.tableName.value) {
+                case 'g':
+                    insertTd.innerHTML = '<select class="custom-select" name="gameAttribute' + rows + '" id="querySelectGame">\n' +
+                        '                                <option value="1">Game ID</option>\n' +
+                        '                                <option value="2">Game Name</option>\n' +
+                        '                                <option value="3">Game Type</option>\n' +
+                        '                                <option value="4">Game Date</option>\n' +
+                        '                                <option value="5">Game Condition</option>\n' +
+                        '                            </select>';
+                    break;
+                case 't':
+                    insertTd.innerHTML = '<select class="custom-select" name="teamAttribute' + rows + '" id="querySelectTeam">\n' +
+                        '                                <option value="1">Team ID</option>\n' +
+                        '                                <option value="2">Team Name</option>\n' +
+                        '                                <option value="3">Captain Account</option>\n' +
+                        '                            </select>';
+                    break;
+                case 'u':
+                    insertTd.innerHTML = '<select class="custom-select" name="userAttribute' + rows + '" id="querySelectUser">\n' +
+                        '                                <option value="1">Student ID</option>\n' +
+                        '                                <option value="2">Email</option>\n' +
+                        '                                <option value="3">Phone No.</option>\n' +
+                        '                                <option value="4">User Name</option>\n' +
+                        '                                <option value="5">Permission</option>\n' +
+                        '                            </select>';
+                    break;
+                default:
+                    return;
+
+            }
+
+            insertTd = insertTr.insertCell(1);
+            insertTd.innerHTML = '<select class="custom-select" name="signal' + rows + '">\n' +
+                '                                <option value="="> =</option>\n' +
+                '                                <option value="!="> ≠</option>\n' +
+                '                                <option value=">"> ></option>\n' +
+                '                                <option value="<"> <</option>\n' +
+                '                                <option value=">="> ≥</option>\n' +
+                '                                <option value="<="> ≤</option>\n' +
+                '                            </select>';
+
+            insertTd = insertTr.insertCell(2);
+            insertTd.innerHTML = '<input type="text" class="form-control" placeholder="Value input:"\n' +
+                '                                   aria-label="Value input:"\n' +
+                '                                   aria-describedby="inputGroup-sizing-default"' +
+                '                                   name="input' + rows + '" required>';
+
+        }
+
+        function selectQueryTable() {
+            document.getElementById("table1").innerHTML = " ";
+            if (queryForm.tableName.value == 'n') return;
+            addQueryCondition.style.display = 'list-item';
+            informationQueryButton.style.display = 'list-item'
+            addQueryline();
+        }
+
+        function selectUpdateTable() {
+
+        }
+    </script>
+</head>
+
+
+<body>
+
+<nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+        <img src="../static/CDS_LOGO.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#homeNavbar"
+            aria-controls="homeNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="homeNavbar">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Schedule</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Introduction</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">History about Us</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">User Pages</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a href="Personal%20Information" class="dropdown-item"><img src="../static/用户符号.svg"
+                                                                                style="width: 20px; height:20px;"
+                                                                                aria-hidden="true"> Personal Info</a>
+                    <a href="CompetitionSignUpPage" class="dropdown-item"><img src="../static/游戏手柄.svg"
+                                                                               style="width: 20px; height:20px;"
+                                                                               aria-hidden="true"> Competition Sign
+                        up</a>
+                    <a href="Team%20Registration" class="dropdown-item"><img src="../static/标靶.svg"
+                                                                             style="width: 20px; height:20px;"
+                                                                             aria-hidden="true"> Player Registration</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">Administrator<span class="caret"></span></a>
+                <div class="dropdown-menu">
+                    <a href="AdministratorInformationEditingPage" class="dropdown-item"><img src="../static/身份证.svg"
+                                                                                             style="width: 20px; height:20px;"
+                                                                                             aria-hidden="true">
+                        Information Editing</a>
+                    <a href="ScheduleManagement" class="dropdown-item"><img src="../static/日程安排.svg"
+                                                                      style="width: 20px; height:20px;"
+                                                                      aria-hidden="true"> Schedule Editing</a>
+                </div>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a class="nav-link" href="Personal%20Information">Hi,____</a></li>
+            <li class="nav-item"><a class="nav-link" href="Login">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="offset-md-1"><h1 class="display-3 mb-3 font-weight-normal">Administrator Information Editing Page:</h1>
+</div>
+
+{% if result %}
+    <div class="col-sm-9 offset-md-1">
+        <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+            <div class="card-header">
+                <h1>Result</h1>
+            </div>
+            {% if result == 'success' %}
+                <div class="card-body">
+                    <h2>Success!</h2>
+                </div>
+            {% else %}
+                <div class="card-body">
+                    <table class="table">
+                        {% if table == 'game' %}
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Game ID</th>
+                                <th scope="col">Game Name</th>
+                                <th scope="col">Game Type</th>
+                                <th scope="col">Game Date</th>
+                                <th scope="col">Game Condition</th>
+                            </tr>
+                            </thead>
+                        {% elif table =='team' %}
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Team ID</th>
+                                <th scope="col">Team Name</th>
+                                <th scope="col">Captain Account</th>
+                            </tr>
+                            </thead>
+                        {% else %}
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Stuendet ID</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Phone NO.</th>
+                                <th scope="col">User Name</th>
+                                <th scope="col">Security Question Answer</th>
+                                <th scope="col">Permision</th>
+                            </tr>
+                            </thead>
+                        {% endif %}
+                        <tbody>
+                        {% for event in result %}
+                            <tr>
+                                <td>{{ event[0] }}</td>
+                                <td>{{ event[1] }}</td>
+                                <td>{{ event[2] }}</td>
+                                <td>{{ event[3] }}</td>
+                                <td>{{ event[4] }}</td>
+                                <td>{{ event[5] }}</td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<div class="col-sm-9 offset-md-1">
+    <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+        <div class="card-body">
+            <h1>Information Query:</h1>
+            <form name="queryForm" method="post">
+                <div class="form-row align-items-center">
+                    <div class="col-auto">
+                        <div class="input-group  mb-3">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><img src="../static/表格.svg" width="20" height="20"
+                                                                   aria-hidden="true"></div>
+                            </div>
+                            <select class="custom-select" name="tableName"
+                                    onchange="selectQueryTable()">
+                                <option selected value="n">Select Table</option>
+                                <option value='g'>Game Table</option>
+                                <option value='t'>Team Table</option>
+                                <option value='u'>User Table</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class=" mb-3" id="addQueryCondition" style="display: none">
+                        <button type="button" class="btn btn-outline-secondary" onclick="addQueryline()">
+                            <img src="../static/加号.svg" width="20" height="20" aria-hidden="true">
+                            Add a condition!
+                        </button>
+
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteQueryLine()">
+                            <img src="../static/减号.svg" width="20" height="20" aria-hidden="true">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+                <table id="table1">
+                </table>
+                <br>
+                <button type="submit" id="informationQueryButton" class="btn btn-primary mb-3" style="display: none">
+                    Query!
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-9 offset-md-1">
+    <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+        <div class="card-body">
+            <h1>User permission update:</h1>
+            <form method="post">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Change User ID = </span>
+                    </div>
+                    <input type="text" name="studentId" class="form-control col-auto" placeholder="ID input:" required>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">permission to</span>
+                    </div>
+                    <select class="custom-select col-auto" name='tableName'>
+                        <option value="-1">Banned</option>
+                        <option value="0" selected>User</option>
+                        <option value="1">Player</option>
+                        <option value="2">Team leader</option>
+                        <option value="3">Project leader</option>
+                        <option value="4">Chief leader</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary"> Query!</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+</html>

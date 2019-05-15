@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Welcome to UCCG Manage System</title>
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	<a class="navbar-brand" href="#">
+		<img src="../static/CDS_LOGO.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+	</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#homeNavbar"
+			aria-controls="homeNavbar" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+	<div class="collapse navbar-collapse" id="homeNavbar">
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item ">
+				<a class="nav-link" href="#">Home</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#">Schedule</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#">Introduction</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#">History about Us</a>
+			</li>
+             <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">User Pages</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a href="Personal%20Information" class="dropdown-item"><img src="../static/用户符号.svg" style="width: 20px; height:20px;" aria-hidden="true"> Personal Info</a>
+                        <a href="CompetitionSignUpPage" class="dropdown-item"><img src="../static/游戏手柄.svg" style="width: 20px; height:20px;" aria-hidden="true"> Competition Sign up</a>
+                        <a href="Team%20Registration" class="dropdown-item"><img src="../static/标靶.svg" style="width: 20px; height:20px;" aria-hidden="true"> Player Registration</a>
+                    </div>
+             </li>
+             <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrator<span class="caret"></span></a>
+                    <div class="dropdown-menu">
+                        <a href="AdministratorInformationEditingPage" class="dropdown-item"><img src="../static/身份证.svg" style="width: 20px; height:20px;" aria-hidden="true"> Information Editing</a>
+                        <a href="ScheduleManagement" class="dropdown-item"><img src="../static/日程安排.svg" style="width: 20px; height:20px;" aria-hidden="true"> Schedule Editing</a>
+                    </div>
+                </li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+            <li class="nav-item">
+                <a class="nav-link" href="Personal%20Information">Hi,____</a>
+            </li>
+			<li class="nav-item">
+				<a class="nav-link" href="Login">Logout</a>
+			</li>
+		</ul>
+	</div>
+</nav>
+{% if alert == 'alert-success' %}
+    <div class="alert alert-success" id="alert">Success!
+        <span><button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button></span>
+    </div>
+    {% elif alert == 'alert-danger'%}
+    <div class="alert alert-danger" id="alert">Fail !! Cannot delete the on matching event !!
+        <span><button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button></span>
+    </div>
+    {% elif alert == 'notfound' %}
+    <div class="alert alert-danger" id="alert">Fail !! Match not found !!
+        <span><button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button></span>
+    </div>
+{% endif %}
+<h1 class="h1 mb-3 font-weight-normal">
+	&nbsp;<img src="schedule.svg" width="40" height="40" class="d-inline-block align-top" alt="">&nbsp;Edit a event:
+</h1>
+<div class="card shadow-lg p-3 mb-5 bg-white rounded" style="border:1px solid steelblue;padding-bottom: 20px ;padding-top: 20px">
+    <div>
+
+        <table class="table table-hover">
+           <thead class="thead-dark">
+           <tr><th>Game Name</th><th>Game Type</th><th>Game Condition</th><th>Maximum participants</th><th>Game Limit</th><th class="text-center">Change</th></tr></thead>
+            {% for event in events %}
+                <tr><td>{{event[1]}}</td><td>{{event[2]}}</td><td>{{ event[3] }}</td><td>{{ event[4] }}</td><td>{{ event[5] }}</td><td><div class="btn-group" role="group">
+                    <a href="/EditSchedule/start{{event[0]}}" class="btn btn-sm btn-success">Start</a>
+                    <div class="btn-group" role="group">
+                        <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Edit
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                            <a class="dropdown-item" href="/editTime/{{ event[0] }}">Edit Time</a>
+                            <a class="dropdown-item" href="/editScore/{{ event[0] }}">Edit Score</a>
+                        </div>
+                    </div>
+                    <a href="/EditSchedule/reset{{event[0]}}" class="btn btn-sm btn-warning">Reset</a>
+                    <a href="/EditSchedule/endit{{event[0]}}" class="btn btn-sm btn-danger">Stop</a>
+                </div>
+
+
+                </td></tr>
+            {% endfor %}
+        </table>
+        <div class="row">
+            <div class="col-2">
+                 <a class="btn btn-primary" href="ScheduleManagement" >Back</a>
+            </div>
+            <div class="col-8"></div>
+            <div class="col-2">
+            <button class="btn btn-danger "  data-toggle="modal" data-target="#myModal">Delete</button>
+            <form accept-charset="UTF-8" role="form" action="{{ url_for('find_event') }}" method="post">
+
+
+                <div class="modal fade loading" id="myModal" tabindex="-1" role="dialog"
+                     aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static"
+                     data-keyboard="true">
+                    <div class="modal-dialog" style="width: 400px">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title"> Alert </h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure to permanently delete this event ?<br><br>
+                                <input type="text" placeholder="Please input the event name" name="game_name"
+                                       class="form-control">
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-sm btn-danger delete">
+                                    Yes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row"><br><br></div>
+    <div class="row"><br><br></div>
+    <div class="row"><br><br></div>
+<p class="mt-5 mb-3 text-muted text-center">©UIC-UCAS 2017-2019</p>
+<script>
+    
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://github.com/wenzhixin/bootstrap-table/blob/develop/src/bootstrap-table.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
