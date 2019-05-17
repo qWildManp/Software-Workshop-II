@@ -33,8 +33,12 @@ class DatabaseOperations():
                 return 0
         except:
             self.__db.close()
-        sql = """INSERT INTO GAME (GAME_NAME,GAME_TYPE,GAME_DATE,GAME_CONDITION,MAX_NUM,GAME_LIMIT) VALUE('%s','%s','%s','%s',%d,'%s')""" % (
-            game_name, type, date_str, 'Available',max_num,limit)
+        if type == 'knock':
+            round_num = 1
+        elif type == 'round':
+            round_num = -1
+        sql = """INSERT INTO GAME (GAME_NAME,GAME_TYPE,GAME_DATE,GAME_CONDITION,MAX_NUM,GAME_LIMIT,GAME_ROUND) VALUE('%s','%s','%s','%s',%d,'%s',%d)""" % (
+            game_name, type, date_str, 'Available', max_num, limit, round_num)
         try:
             cursor.execute(sql)
             self.__db.commit()
@@ -44,22 +48,21 @@ class DatabaseOperations():
             return 0
 
 
-
-
-
-
-
+# --------------------------------------------------------------------
 
 
     def find_event(self):
         cursor = self.__db.cursor()
-        sql_find = """SELECT DISTINCT GAME_ID ,GAME_NAME,GAME_TYPE,GAME_CONDITION,MAX_NUM,GAME_LIMIT FROM GAME """
+        sql_find = """SELECT DISTINCT GAME_ID ,GAME_NAME,GAME_TYPE,GAME_CONDITION,MAX_NUM,GAME_LIMIT 
+                        FROM GAME 
+                        ORDER BY GAME_CONDITION"""
         try:
             cursor.execute(sql_find)
             result = cursor.fetchall()
             return result
         except:
             self.__db.close()
+
 
     def check_condition(self, game_id):
         cursor = self.__db.cursor()
@@ -79,13 +82,34 @@ class DatabaseOperations():
     def change_condition(self, game_condition, game_id):
         cursor = self.__db.cursor()
         if (game_condition == 'start'):
-            sql_change = """UPDATE GAME SET GAME_CONDITION = 'onMatching' 
-            WHERE GAME_ID = %d AND (GAME_CONDITION = 'Available')""" % (game_id)
-            try:
-                cursor.execute(sql_change)
-                self.__db.commit()
-            except:
-                self.__db.rollback()
+            count_participate = self.count_participant(game_id)
+            count = (count_participate[0])[1]
+            can_start = False
+            if self.check_game_type(game_id) == 1:
+                if count <= 5:
+                    sql_check_history = """SELECT * FROM HISTORY WHERE GAME_ID = %d""" %(game_id)
+                    try:
+                        cursor.execute(sql_check_history)
+                        history = cursor.fetchall()
+                        if history:
+                            can_start = True
+                    except:
+                        pass
+                elif count > 5:
+                    can_start = True
+            elif self.check_game_type(game_id) == 2:
+                if count > 1:
+                    can_start = True
+            if can_start:
+                sql_change = """UPDATE GAME SET GAME_CONDITION = 'onMatching' 
+                WHERE GAME_ID = %d AND (GAME_CONDITION = 'Available')""" % (game_id)
+                try:
+                    cursor.execute(sql_change)
+                    self.__db.commit()
+                except:
+                    self.__db.rollback()
+            else:
+                return "fail"
         elif (game_condition == 'endit'):
             sql_change = """UPDATE GAME SET GAME_CONDITION = 'Stopped' 
             WHERE GAME_ID = %d AND (GAME_CONDITION = 'onMatching' OR GAME_CONDITION = 'Available' )""" % (game_id)
@@ -103,22 +127,91 @@ class DatabaseOperations():
             except:
                 self.__db.rollback()
 
-    def delete_event(self,game_name):
+    def check_participate(self,game_id):
         cursor = self.__db.cursor()
-        sql_exist = """SELECT * FROM GAME WHERE GAME_NAME = '%s'""" % (game_name)
-        try :
+        game_limit = self.check_game_limit(game_id)
+        if game_limit == 1:
+            sql_check = """SELECT TEAM_ID FROM PARTICIPATE WHERE GAME_ID = %d""" % (game_id)
+            try:
+                cursor.execute(sql_check)
+                result = cursor.fetchall()
+                return result
+            except:
+                pass
+        elif game_limit == 2:
+            sql_check = """SELECT STUDENT_ID FROM PARTICIPATE_INDIVIDUAL WHERE GAME_ID = %d""" % (game_id)
+            try:
+                cursor.execute(sql_check)
+                result = cursor.fetchall()
+                return result
+            except:
+                pass
+
+    def delete_event(self, game_name):
+        cursor = self.__db.cursor()
+        sql_exist = """SELECT GAME_ID FROM GAME WHERE GAME_NAME = '%s'""" % (game_name)
+        try:
             cursor.execute(sql_exist)
             result = cursor.fetchall()
             if(result):
                 sql_check_condition = """SELECT GAME_CONDITION FROM GAME WHERE GAME_NAME = '%s'""" % (game_name)
-                try :
+                try:
                     cursor.execute(sql_check_condition)
-                    result = cursor.fetchall()
-                    condition = (result[0])[0]
+                    condition_result = cursor.fetchall()
+                    condition = (condition_result[0])[0]
                     if(condition != 'onMatching'):
-                        sql_delete = """DELETE FROM GAME WHERE GAME_NAME= '%s'""" % (game_name)
+                        game_id = (result[0])[0]
+                        game_limit = self.check_game_limit(game_id)
                         try:
-                            cursor.execute(sql_delete)
+                            check_arr = self.view_arrange(game_id)
+                            check_sco = self.view_score(game_id)
+                            check_par = self.check_participate(game_id)
+                            if game_limit == 1:
+                                if check_sco:
+                                    sql_delete_score_team = """DELETE FROM MATCH_SCORE WHERE GAME_ID = %d""" % (game_id)
+                                    try:
+                                        cursor.execute(sql_delete_score_team)
+                                        self.__db.commit()
+                                    except:
+                                        pass
+                                if check_arr:
+                                    sql_delete_arr_team = """DELETE FROM MATCH_ARRANGE WHERE GAME_ID = %d""" % (game_id)
+                                    try:
+                                        cursor.execute(sql_delete_arr_team)
+                                        self.__db.commit()
+                                    except :
+                                        pass
+                                if check_par:
+                                    sql_delete_participate = """DELETE FROM PARTICIPATE WHERE GAME_ID = %d""" %(game_id)
+                                    try:
+                                        cursor.execute(sql_delete_participate)
+                                        self.__db.commit()
+                                    except:
+                                        pass
+                            elif game_limit == 2:
+                                if check_sco :
+                                    sql_delete_score_team = """DELETE FROM MATCH_SCORE WHERE GAME_ID = %d""" % (game_id)
+                                    try:
+                                        cursor.execute(sql_delete_score_team)
+                                        self.__db.commit()
+                                    except :
+                                        pass
+                                if check_arr:
+                                    sql_delete_arr_team = """DELETE FROM MATCH_ARRANGE WHERE GAME_ID = %d""" % (game_id)
+                                    try:
+                                        cursor.execute(sql_delete_arr_team)
+                                        self.__db.commit()
+                                    except :
+                                        pass
+                                if check_par:
+                                    sql_delete_participate = """DELETE FROM PARTICIPATE_INDIVIDUAL WHERE GAME_ID = %d""" % (game_id)
+                                    try:
+                                        cursor.execute(sql_delete_participate)
+                                        self.__db.commit()
+                                    except:
+                                        pass
+                            sql_delete_game = """DELETE FROM GAME WHERE GAME_NAME= '%s'""" % (game_name)
+                            cursor.execute(sql_delete_game)
                             self.__db.commit()
                             return "success"
                         except:
@@ -132,8 +225,7 @@ class DatabaseOperations():
         except:
             pass
 
-
-
+# --------------------------------------------------------------------
 
 
     def find_event_name(self, game_id):
@@ -148,14 +240,27 @@ class DatabaseOperations():
         except:
             self.__db.close()
 
+    def find_event_game_round(self,game_id):
+        cursor = self.__db.cursor()
+        sql_find = """SELECT GAME_ROUND FROM GAME WHERE GAME_ID = %d""" % (game_id)
+        try:
+            cursor.execute(sql_find)
+            result = cursor.fetchall()
+            for row in result:
+                game_round = row[0]
+            return game_round
+        except:
+            self.__db.close()
+
+
     def count_participant(self, game_id):
         cursor = self.__db.cursor()
         game_limit = self.check_game_limit(game_id)
         if (game_limit == 1):
-            sql_count = """SELECT GAME_ID ,COUNT(TEAM_ID) FROM INSIDE WHERE GAME_ID = %d
+            sql_count = """SELECT GAME_ID ,COUNT(TEAM_ID) FROM PARTICIPATE WHERE GAME_ID = %d
     GROUP BY GAME_ID """ % (game_id)
         elif (game_limit == 2):
-            sql_count = """SELECT GAME_ID,COUNT(STUDENT_ID) FROM INSIDE_INDIVIDUAL WHERE GAME_ID = %d 
+            sql_count = """SELECT GAME_ID,COUNT(STUDENT_ID) FROM PARTICIPATE_INDIVIDUAL WHERE GAME_ID = %d 
             GROUP BY GAME_ID""" % (game_id)
         try:
             cursor.execute(sql_count)
@@ -233,8 +338,8 @@ class DatabaseOperations():
         game_limit = self.check_game_limit(game_id)
         game_type = self.check_game_type(game_id)
         if(game_limit == 1):
-                sql_team = """SELECT INSIDE.TEAM_ID, TEAM.TEAM_NAME, INSIDE.GAME_ID FROM INSIDE NATURAL JOIN TEAM 
-                WHERE INSIDE.GAME_ID = %d""" % (game_id)
+                sql_team = """SELECT PARTICIPATE.TEAM_ID, TEAM.TEAM_NAME, PARTICIPATE.GAME_ID FROM PARTICIPATE NATURAL JOIN TEAM 
+                WHERE PARTICIPATE.GAME_ID = %d""" % (game_id)
                 try:
                     cursor.execute(sql_team)
                     result = cursor.fetchall()
@@ -248,7 +353,7 @@ class DatabaseOperations():
                         pass
         elif(game_limit == 2):
             sql_player = """SELECT STUDENT_ID,USER_NAME,GAME_ID 
-            FROM INSIDE_INDIVIDUAL NATURAL JOIN PLAYER NATURAL JOIN USER 
+            FROM PARTICIPATE_INDIVIDUAL NATURAL JOIN PLAYER NATURAL JOIN USER 
             WHERE GAME_ID = %d"""%(game_id)
             try:
                 cursor.execute(sql_player)
@@ -348,7 +453,7 @@ class DatabaseOperations():
         game_limit = self.check_game_limit(game_id)
         cursor = self.__db.cursor()
         if (game_limit == 1):
-            sql_view = """SELECT DISTINCT T1.TEAM_NAME
+            sql_view = """SELECT DISTINCT T1.TEAM_ID, T1.TEAM_NAME
                     FROM MATCH_ARRANGE, TEAM as T1
                     WHERE T1.TEAM_ID = TEAM_ID_ONE AND TEAM_ID_TWO = 0 AND ARR_TIME = 0 AND GAME_ID= %d""" % (game_id)
             try:
@@ -358,7 +463,7 @@ class DatabaseOperations():
             except:
                 pass
         elif(game_limit == 2):
-            sql_view = """SELECT T1.USER_NAME 
+            sql_view = """SELECT T1.STUDENT_ID,T1.USER_NAME 
                         FROM  USER  AS T1 , MATCH_ARRANGE_INDIVIDUAL
                         WHERE T1.STUDENT_ID = STUDENT_ID_ONE AND STUDENT_ID_TWO =0 AND ARR_TIME =0 AND GAME_ID = %d""" % (game_id)
             try:
@@ -448,12 +553,11 @@ class DatabaseOperations():
         game_limit = self.check_game_limit(game_id)
         cursor = self.__db.cursor()
         if(game_limit == 1):
-            sql_view = """SELECT T1.TEAM_NAME,TEAM_ONE_SCORE,T2.TEAM_NAME,TEAM_TWO_SCORE,ARR_TIME
+            sql_view = """SELECT T1.TEAM_ID, T1.TEAM_NAME,T2.TEAM_ID,T2.TEAM_NAME,TEAM_ONE_SCORE,TEAM_TWO_SCORE,ARR_TIME
             FROM MATCH_ARRANGE, TEAM as T1 ,TEAM as T2 ,MATCH_SCORE
             WHERE T1.TEAM_ID = TEAM_ID_ONE 
             AND T2.TEAM_ID =TEAM_ID_TWO 
-            AND MATCH_ARRANGE.MATCH_ID = MATCH_SCORE.MATCH_ID AND MATCH_SCORE.GAME_ID= %d""" % (
-                game_id)
+            AND MATCH_ARRANGE.MATCH_ID = MATCH_SCORE.MATCH_ID AND MATCH_SCORE.GAME_ID= %d""" % (game_id)
             try:
                 cursor.execute(sql_view)
                 result = cursor.fetchall()
@@ -461,7 +565,7 @@ class DatabaseOperations():
             except:
                 pass
         elif(game_limit == 2):
-            sql_view = """SELECT T1.USER_NAME,PLAYER_ONE_SCORE,T2.USER_NAME,PLAYER_TWO_SCORE,ARR_TIME
+            sql_view = """SELECT T1.STUDENT_ID T1.USER_NAME,T2.STUDENT_ID,T2.USER_NAME,PLAYER_ONE_SCORE,PLAYER_TWO_SCORE,ARR_TIME
                         FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
                         WHERE T1.STUDENT_ID = STUDENT_ID_ONE 
                         AND T2.STUDENT_ID =STUDENT_ID_TWO AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
@@ -472,6 +576,235 @@ class DatabaseOperations():
                 return result
             except:
                 pass
+
+    def if_match_isdone(self,game_id):
+        cursor = self.__db.cursor()
+        game_limit = self.check_game_limit(game_id)
+        if game_limit == 1:
+            sql_bye = """SELECT * FROM MATCH_ARRANGE WHERE GAME_ID = %d AND TEAM_ID_TWO = 0 AND ARR_TIME = 0""" % (game_id)
+            sql_count_arr = """SELECT GAME_ID,COUNT(GAME_ID) 
+            FROM MATCH_ARRANGE 
+            WHERE GAME_ID = %d GROUP BY GAME_ID""" % (game_id)
+            sql_count_sco = """SELECT GAME_ID,COUNT(GAME_ID) 
+            FROM MATCH_SCORE 
+            WHERE GAME_ID = %d GROUP BY GAME_ID""" % (game_id)
+        elif game_limit == 2:
+            sql_bye = """SELECT * FROM MATCH_ARRANGE_INDIVIDUAL WHERE GAME_ID = %d AND STUDENT_ID_TWO = 0 AND ARR_TIME = 0""" % (
+                game_id)
+            sql_count_arr = """SELECT GAME_ID,COUNT(GAME_ID) 
+                        FROM MATCH_ARRANGE_INDIVIDUAL 
+                        WHERE GAME_ID = %d GROUP BY GAME_ID""" % (game_id)
+            sql_count_sco = """SELECT GAME_ID,COUNT(GAME_ID) 
+                        FROM MATCH_SCORE_INDIVIDUAL 
+                        WHERE GAME_ID = %d GROUP BY GAME_ID""" % (game_id)
+        try:
+            cursor.execute(sql_bye)
+            result = cursor.fetchall()
+            if result:
+                bye_num = 1
+            else :
+                bye_num = 0
+            cursor.execute(sql_count_arr)
+            result_arr = cursor.fetchall()
+            if result_arr:
+                arr_num = (result_arr[0])[1]
+            else:
+                arr_num = 0
+            cursor.execute(sql_count_sco)
+            result_sco = cursor.fetchall()
+            if result_sco:
+                actual_num = (result_sco[0])[1]
+            else:
+                actual_num = 0
+            if arr_num-bye_num > actual_num:
+                return 0
+            elif arr_num-bye_num == actual_num:
+                return 1
+            else:
+                return -1
+        except:
+                pass
+
+
+    def pick_next_round(self,game_id):
+        winner = []
+        cursor = self.__db.cursor()
+        game_limit = self.check_game_limit(game_id)
+        if game_limit == 1:
+            sql_winner_left = """SELECT T1.TEAM_ID,T1.TEAM_NAME,MATCH_SCORE.GAME_ID
+                        FROM MATCH_ARRANGE, TEAM as T1 ,TEAM as T2 ,MATCH_SCORE
+                        WHERE T1.TEAM_ID = TEAM_ID_ONE 
+                        AND T2.TEAM_ID =TEAM_ID_TWO 
+                        AND MATCH_ARRANGE.MATCH_ID = MATCH_SCORE.MATCH_ID 
+                        AND TEAM_ONE_SCORE > TEAM_TWO_SCORE 
+                        AND MATCH_SCORE.GAME_ID= %d""" % (game_id)
+            sql_winner_right = """SELECT T2.TEAM_ID,T2.TEAM_NAME,MATCH_SCORE.GAME_ID
+                                FROM MATCH_ARRANGE, TEAM as T1 ,TEAM as T2 ,MATCH_SCORE
+                                WHERE T1.TEAM_ID = TEAM_ID_ONE 
+                                AND T2.TEAM_ID =TEAM_ID_TWO 
+                                AND MATCH_ARRANGE.MATCH_ID = MATCH_SCORE.MATCH_ID 
+                                AND TEAM_ONE_SCORE < TEAM_TWO_SCORE 
+                                AND MATCH_SCORE.GAME_ID= %d""" % (game_id)
+        elif game_limit == 2:
+            sql_winner_left = """SELECT T1.STUDENT_ID,T1.USER_NAME,MATCH_SCORE_INDIVIDUAL.GAME_ID
+                                    FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
+                                    WHERE T1.TEAM_ID = TEAM_ID_ONE 
+                                    AND T2.TEAM_ID =TEAM_ID_TWO 
+                                    AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
+                                    AND TEAM_ONE_SCORE > TEAM_TWO_SCORE 
+                                    AND MATCH_SCORE_INDIVIDUAL.GAME_ID= %d""" % (game_id)
+            sql_winner_right = """SELECT T2.STUDENT_ID,T2.USER_NAME,MATCH_SCORE_INDIVIDUAL.GAME_ID
+                                            FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
+                                            WHERE T1.TEAM_ID = TEAM_ID_ONE 
+                                            AND T2.TEAM_ID =TEAM_ID_TWO 
+                                            AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
+                                            AND TEAM_ONE_SCORE < TEAM_TWO_SCORE 
+                                            AND MATCH_SCORE_INDIVIDUAL.GAME_ID= %d""" % (game_id)
+        try:
+            cursor.execute(sql_winner_left)
+            result_left = cursor.fetchall()
+            for each in result_left:
+                winner.append(each)
+            cursor.execute(sql_winner_right)
+            result_right = cursor.fetchall()
+            for each in result_right:
+                winner.append(each)
+            bye = self.view_bye(game_id)
+            if bye:
+                winner.append(bye)
+            return winner
+        except:
+            pass
+
+    def upload_history(self,game_id):
+        cursor = self.__db.cursor()
+        round_num = self.find_event_game_round(game_id)
+        sql_get_scores = self.view_score(game_id)
+        data = []
+        for each in sql_get_scores:
+            data.append((game_id, round_num, each[0], each[2], each[4], each[5]))
+        sql_insert = """INSERT INTO HISTORY(GAME_ID,GAME_ROUND,TEAM_ONE_ID,TEAM_TWO_ID,TEAM_ONE_SCORE,TEAM_TWO_SCORE)
+        VALUES(%d,%d,%d,%d,%d,%d)"""
+        try:
+            for each in data:
+                cursor.execute(sql_insert % each)
+            self.__db.commit()
+            return "success"
+        except:
+            self.__db.rollback()
+
+
+    def generate_next_round(self,game_id):
+        cursor = self.__db.cursor()
+        upload_result = self.upload_history(game_id)
+        if upload_result == "success":
+            sql_next = """UPDATE GAME SET GAME_ROUND = GAME_ROUND+1 WHERE GAME_ID = %d""" % (game_id)
+            try:
+                cursor.execute(sql_next)
+                self.__db.commit()
+                next_round_team_pair = self.next_round_team_pair(game_id)
+                return next_round_team_pair
+            except:
+                pass
+        else:
+            return "Fail"
+
+
+    def pick_participants(self,game_id):
+        cursor = self.__db.cursor()
+        game_limit = self.check_game_limit(game_id)
+        if game_limit == 1:
+            sql_pick = """SELECT TEAM_ID,TEAM_NAME,GAME_ID FROM PARTICIPATE NATURAL JOIN TEAM 
+            WHERE GAME_ID = %d""" % (game_id)
+        elif game_limit == 2:
+            sql_pick = """ SELECT STUDENT_ID,USER_NAME,GAME_ID FROM PARTICIPATE_INDIVIDUAL NATURAL JOIN USER 
+            WHERE GAME_ID = %d""" % (game_id)
+        try :
+            cursor.execute(sql_pick)
+            result = cursor.fetchall()
+            return result
+        except:
+            pass
+
+
+    def clear_the_old_record(self,game_id,looser):
+        cursor = self.__db.cursor()
+        game_limit = self.check_game_limit(game_id)
+        team_ids = []
+        if game_limit == 1:
+            sql_delete_score ="""DELETE FROM MATCH_SCORE WHERE GAME_ID = %d""" %(game_id)
+            try:
+                cursor.execute(sql_delete_score)
+                self.__db.commit()
+            except:
+                self.__db.rollback()
+            sql_delete_time = """DELETE FROM MATCH_ARRANGE WHERE GAME_ID = %d""" %(game_id)
+            try:
+                cursor.execute(sql_delete_time)
+                self.__db.commit()
+            except:
+                self.__db.rollback()
+            sql_delete_team = """DELETE FROM PARTICIPATE WHERE TEAM_ID = %d"""
+            for each in looser:
+                team_ids.append(each[0])
+            for each in team_ids:
+                try:
+                    cursor.execute(sql_delete_team % each)
+                    self.__db.commit()
+                except:
+                    self.__db.rollback()
+        elif game_limit == 2:
+            sql_delete_score = """DELETE FROM MATCH_SCORE_INDIVIDUAL WHERE GAME_ID = %d""" % (game_id)
+            try:
+                cursor.execute(sql_delete_score)
+                self.__db.commit()
+            except:
+                self.__db.rollback()
+            sql_delete_time = """DELETE FROM MATCH_ARRANGE_INDIVIDUAL WHERE GAME_ID = %d""" % (game_id)
+            try:
+                cursor.execute(sql_delete_time)
+                self.__db.commit()
+            except:
+                self.__db.rollback()
+            sql_delete_team = """DELETE FROM PARTICIPATE_INDIVIDUAL WHERE STUDENT_ID = %d"""
+            for each in looser:
+                team_ids.append(each[0])
+            for each in team_ids:
+                try:
+                    cursor.execute(sql_delete_team % each)
+                    self.__db.commit()
+                except:
+                    self.__db.rollback()
+
+
+
+    def next_round_team_pair(self,game_id):
+        next_round_member = self.pick_next_round(game_id)
+        last_round_member = self.pick_participants(game_id)
+        looser = list(set(last_round_member) - set(next_round_member))
+        match_team_pair = []
+        if len(next_round_member) == 2:
+            match_team_pair = next_round_member
+            for each in looser:
+                match_team_pair.append(each)
+            match_team_pair = self.knock_method(match_team_pair)
+        elif len(next_round_member) == 3:
+            j = 0
+            while j < len(next_round_member):
+                row = next_round_member[j]
+                k = j + 1
+                while k < len(next_round_member):
+                    each = next_round_member[k]
+                    match_team_pair.append([row[0], row[1], each[0], each[1], row[2]])
+                    k += 1
+                j += 1
+        else:
+            match_team_pair = self.knock_method(next_round_member)
+        return match_team_pair
+
+
+
+
 
     def admin_requirement(self, sql, type):
         cursor = self.__db.cursor()

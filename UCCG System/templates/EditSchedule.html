@@ -91,6 +91,9 @@
                             Edit
                         </button>
                         <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                            {% if event[2] == 'knock' and event[3] == 'onMatching' %}
+                                <a class="dropdown-item" href="editKnock/{{ event[0] }}">Edit Knock</a>
+                            {% endif %}
                             <a class="dropdown-item" href="/editTime/{{ event[0] }}">Edit Time</a>
                             <a class="dropdown-item" href="/editScore/{{ event[0] }}">Edit Score</a>
                         </div>
@@ -98,7 +101,7 @@
                     <a href="/EditSchedule/reset{{event[0]}}" class="btn btn-sm btn-warning">Reset</a>
                     <a href="/EditSchedule/endit{{event[0]}}" class="btn btn-sm btn-danger">Stop</a>
                 </div>
-
+                    <a href="/viewPage/{{ event[0] }}" class= "btn btn-sm btn-info">View</a>
 
                 </td></tr>
             {% endfor %}
@@ -147,7 +150,7 @@
     <div class="row"><br><br></div>
 <p class="mt-5 mb-3 text-muted text-center">©UIC-UCAS 2017-2019</p>
 <script>
-    
+
 </script>
 <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://github.com/wenzhixin/bootstrap-table/blob/develop/src/bootstrap-table.js"></script>

@@ -1,9 +1,9 @@
-from wtforms import Form, StringField, validators, RadioField,IntegerField
-from flask import Flask, render_template, request, redirect, url_for
+from wtforms import Form, StringField, validators, RadioField
+from flask import Flask, render_template, request, redirect, url_for,session
 from DatabaseOperation import DatabaseOperations
 
 app = Flask(__name__)
-
+app.config['SECRET_KEY'] = "next_round_member"
 
 
 
@@ -62,6 +62,13 @@ def time_change(game_id):
         alert = "alert-danger"
         location = "EditSchedule"
         return render_template('Result.html', message=message, alert=alert, location=location)
+    round_num = sql.find_event_game_round(game_id)
+    count = (sql.count_participant(game_id)[0])[1]
+    if round_num <= 1:
+        match_team_pair = sql.get_team_pair(game_id)
+    elif round_num > 1:
+        match_team_pair = session.get('next_round_member')
+        count = len(match_team_pair)
     is_bye = request.form.get('bye')
     infor = request.form.get('infor')
     date = str(request.form.get('date'))
@@ -79,14 +86,14 @@ def time_change(game_id):
             nullvalue = 0
             sql.upload_arrange(id, nullvalue, game_id, nullvalue)
         return render_template('editTime.html', event_name=sql.find_event_name(game_id),
-                               count=sql.count_participant(game_id),
-                               match_team_pair=sql.get_team_pair(game_id),
+                               count= count,
+                               match_team_pair=match_team_pair,
                                view=sql.view_arrange(game_id),
                                view_bye=sql.view_bye(game_id))
     else:
         return render_template('editTime.html', event_name=sql.find_event_name(game_id),
-                               count=sql.count_participant(game_id),
-                               match_team_pair=sql.get_team_pair(game_id),
+                               count=count,
+                               match_team_pair=match_team_pair,
                                view=sql.view_arrange(game_id)
                                , view_bye=sql.view_bye(game_id))
 
@@ -115,11 +122,97 @@ def score_index(game_id):
         sql.upload_score(match_id, game_id, one_score, two_score)
         return render_template('editScore.html', event_name=sql.find_event_name(game_id),
                                match_team_pair=sql.view_arrange(game_id),
-                               view_score=sql.view_score(game_id),match_id = match_id)
+                               view_score=sql.view_score(game_id),match_id=match_id)
     else:
         return render_template('editScore.html', event_name=sql.find_event_name(game_id),
                                match_team_pair=sql.view_arrange(game_id),
                                view_score=sql.view_score(game_id))
+
+
+
+
+
+
+@app.route('/editKnock/<string:back>')
+def knock_back(back):
+    return redirect(url_for('find_event'))
+
+
+@app.route('/editKnock/<int:game_id>',methods=['GET','POST'])
+def knock_index(game_id):
+    sql = DatabaseOperations()
+    show_upload_history = False
+    show_button = True
+    next_round_memeber = set(sql.pick_next_round(game_id))
+    last_round_memeber = set(sql.pick_participants(game_id))
+    if len(next_round_memeber) < len(last_round_memeber)/2:
+        show_button = False
+    elif len(next_round_memeber) == len(last_round_memeber):
+        show_button = True
+    elif len(next_round_memeber) - len(last_round_memeber) == 1:
+        show_upload_history = True
+        show_button = False
+    if request.method == 'POST':
+        upload_request = request.form.get('upload')
+        if upload_request == "upload_history":
+            sql.upload_history(game_id)
+            message = "Upload Success!!"
+            alert = "alert-success"
+            location = "ScheduleManagement"
+            return render_template('Result.html', message=message, alert=alert, location=location)
+        else:
+            looser = list(set(last_round_memeber) - next_round_memeber)
+            if sql.if_match_isdone(game_id) == 1:
+                update_result = sql.generate_next_round(game_id)
+                if update_result:
+                    session.permanent = True
+                    session['next_round_member'] = update_result
+                    sql.clear_the_old_record(game_id, looser)
+                    message = "Generate Success!!"
+                    alert = "alert-success"
+                    location = "ScheduleManagement"
+                    return render_template('Result.html', message=message, alert=alert, location=location)
+                else:
+                    message = "Fail !!"
+                    alert = "alert-danger"
+                    location = "ScheduleManagement"
+                    return render_template('Result.html', message=message, alert=alert, location=location)
+            else:
+                message = "Unknown failure!!"
+                alert = "alert-danger"
+                location = "EditSchedule"
+                return render_template('Result.html', message=message, alert=alert, location=location)
+    else:
+        return render_template('editKnock.html', event_name=sql.find_event_name(game_id),
+                           current_round=sql.view_score(game_id),
+                           current_bye =sql.view_bye(game_id),
+                           game_round=sql.find_event_game_round(game_id),
+                           show_button=show_button,show_upload_history =show_upload_history,
+                               next_round_memeber = next_round_memeber,
+                               last_round_memeber=last_round_memeber,true_next_round_member = sql.pick_next_round(game_id))
+
+
+
+
+
+
+
+@app.route('/viewPage/<string:back>')
+def view_back(back):
+    return redirect(url_for('find_event'))
+
+
+@app.route('/viewPage/<int:game_id>')
+def view_index(game_id):
+    sql = DatabaseOperations()
+    participants = sql.pick_participants(game_id)
+    count = sql.count_participant(game_id)
+    return render_template('viewPage.html',participants=participants,count=count)
+
+
+
+
+
 
 
 @app.route('/EditSchedule', methods=['GET', 'POST'])
@@ -134,9 +227,10 @@ def find_event():
         elif delete_result == 'fail':
             alert = "alert-danger"
             return render_template('EditSchedule.html', events=sql.find_event(), alert=alert)
-        else:
+        elif delete_result == "notfound":
             alert = 'notfound'
             return render_template('EditSchedule.html', events=sql.find_event(), alert=alert)
+        return render_template('EditSchedule.html', events=sql.find_event(), result=sql.delete_event(game_name))
     else:
         return render_template('EditSchedule.html', events=sql.find_event())
 

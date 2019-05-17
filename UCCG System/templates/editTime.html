@@ -17,9 +17,8 @@
 
 <div class="container" style="margin-left: auto;margin-right: auto;">
     <br>
-    <h1 class="h1 mb-3 font-weight-normal text-center">Edit the competition time of {{ event_name }} below: There is(are) {{ (count[0])[1] }} participant(s)</h1>
+    <h1 class="h1 mb-3 font-weight-normal text-center">Edit the competition time of {{ event_name }} below: There is(are) {{ count }} participant(s)</h1>
     <br>
-
     <table class="col-10 table-striped" style="margin:auto;text-align:center;">
         {% for row in match_team_pair  %}
             {% if row[3] == None %}
@@ -74,7 +73,7 @@
         <tr><th>BYE</th></tr>
         {% if view_bye != None %}
             {% for each in view_bye %}
-                <tr><td>{{ each[0] }}</td></tr>
+                <tr><td>{{ each[1] }}</td></tr>
             {% endfor %}
         {% endif %}
     </table>
