@@ -149,7 +149,7 @@ def knock_index(game_id):
         show_button = False
     elif len(next_round_memeber) == len(last_round_memeber):
         show_button = True
-    elif len(next_round_memeber) - len(last_round_memeber) == 1:
+    elif len(last_round_memeber) - len(next_round_memeber) == 1:
         show_upload_history = True
         show_button = False
     if request.method == 'POST':
@@ -208,9 +208,6 @@ def view_index(game_id):
     participants = sql.pick_participants(game_id)
     count = sql.count_participant(game_id)
     return render_template('viewPage.html',participants=participants,count=count)
-
-
-
 
 
 
