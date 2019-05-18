@@ -94,7 +94,7 @@
                             {% if event[2] == 'knock' and event[3] == 'onMatching' %}
                                 <a class="dropdown-item" href="editKnock/{{ event[0] }}">Edit Knock</a>
                                 {% elif event[2] == 'round' and event[3] == 'onMatching' %}
-                                <a class="dropdown-item" href="editKnock/{{ event[0] }}">Upload Result</a>
+                                <a class="dropdown-item" href="uploadResult/{{ event[0] }}">Upload Result</a>
                             {% endif %}
                             <a class="dropdown-item" href="/editTime/{{ event[0] }}">Edit Time</a>
                             <a class="dropdown-item" href="/editScore/{{ event[0] }}">Edit Score</a>
