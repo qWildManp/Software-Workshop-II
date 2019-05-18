@@ -14,12 +14,24 @@
 </head>
 <body>
 
-
 <div class="container" style="margin-left: auto;margin-right: auto;">
+
     <br>
     <h1 class="h1 mb-3 font-weight-normal text-center">Edit the competition time of {{ event_name }} below: There is(are) {{ count }} participant(s)</h1>
     <br>
+<div class="row">
+<div class="col-2">
+    {% if champion_contender %}
+         <h5>Champion Contender</h5>
+    {% endif %}
+    <br><br>
+    {% if champion_contender %}
+         <h5>Second Runner Contender</h5>
+    {% endif %}
+</div>
+<div class="col-10">
     <table class="col-10 table-striped" style="margin:auto;text-align:center;">
+    {% if match_team_pair %}
         {% for row in match_team_pair  %}
             {% if row[3] == None %}
                 <tr>
@@ -59,7 +71,10 @@
               </tr>
             {% endif %}
         {% endfor %}
-    </table><br><br>
+    {% endif %}
+    </table>
+</div>
+    </div><br><br>
     <table class="col-10 table-striped" style="margin:auto;text-align:center;">
         <tr><th>TEAM/PLAYER ONE</th><th>TEAM/PLAYER TWO</th><th>TIME</th></tr>
     {% if view != None %}

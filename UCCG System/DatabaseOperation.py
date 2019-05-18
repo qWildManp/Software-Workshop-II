@@ -352,7 +352,7 @@ class DatabaseOperations():
                 except:
                         pass
         elif(game_limit == 2):
-            sql_player = """SELECT STUDENT_ID,USER_NAME,GAME_ID 
+            sql_player = """SELECT PARTICIPATE_INDIVIDUAL.STUDENT_ID,USER.USER_NAME,PARTICIPATE_INDIVIDUAL.GAME_ID 
             FROM PARTICIPATE_INDIVIDUAL NATURAL JOIN PLAYER NATURAL JOIN USER 
             WHERE GAME_ID = %d"""%(game_id)
             try:
@@ -565,7 +565,7 @@ class DatabaseOperations():
             except:
                 pass
         elif(game_limit == 2):
-            sql_view = """SELECT T1.STUDENT_ID T1.USER_NAME,T2.STUDENT_ID,T2.USER_NAME,PLAYER_ONE_SCORE,PLAYER_TWO_SCORE,ARR_TIME
+            sql_view = """SELECT T1.STUDENT_ID,T1.USER_NAME,T2.STUDENT_ID,T2.USER_NAME,PLAYER_ONE_SCORE,PLAYER_TWO_SCORE,ARR_TIME
                         FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
                         WHERE T1.STUDENT_ID = STUDENT_ID_ONE 
                         AND T2.STUDENT_ID =STUDENT_ID_TWO AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
@@ -648,17 +648,17 @@ class DatabaseOperations():
         elif game_limit == 2:
             sql_winner_left = """SELECT T1.STUDENT_ID,T1.USER_NAME,MATCH_SCORE_INDIVIDUAL.GAME_ID
                                     FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
-                                    WHERE T1.TEAM_ID = TEAM_ID_ONE 
-                                    AND T2.TEAM_ID =TEAM_ID_TWO 
+                                    WHERE T1.STUDENT_ID = STUDENT_ID_ONE 
+                                    AND T2.STUDENT_ID =STUDENT_ID_TWO 
                                     AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
-                                    AND TEAM_ONE_SCORE > TEAM_TWO_SCORE 
+                                    AND PLAYER_ONE_SCORE > PLAYER_TWO_SCORE 
                                     AND MATCH_SCORE_INDIVIDUAL.GAME_ID= %d""" % (game_id)
             sql_winner_right = """SELECT T2.STUDENT_ID,T2.USER_NAME,MATCH_SCORE_INDIVIDUAL.GAME_ID
                                             FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
-                                            WHERE T1.TEAM_ID = TEAM_ID_ONE 
-                                            AND T2.TEAM_ID =TEAM_ID_TWO 
+                                            WHERE T1.STUDENT_ID = STUDENT_ID_ONE 
+                                            AND T2.STUDENT_ID =STUDENT_ID_TWO 
                                             AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
-                                            AND TEAM_ONE_SCORE < TEAM_TWO_SCORE 
+                                            AND PLAYER_ONE_SCORE < PLAYER_TWO_SCORE 
                                             AND MATCH_SCORE_INDIVIDUAL.GAME_ID= %d""" % (game_id)
         try:
             cursor.execute(sql_winner_left)
@@ -683,7 +683,18 @@ class DatabaseOperations():
         data = []
         for each in sql_get_scores:
             data.append((game_id, round_num, each[0], each[2], each[4], each[5]))
-        sql_insert = """INSERT INTO HISTORY(GAME_ID,GAME_ROUND,TEAM_ONE_ID,TEAM_TWO_ID,TEAM_ONE_SCORE,TEAM_TWO_SCORE)
+        sql_check_exist = """SELECT * FROM HISTORY 
+        WHERE GAME_ID = %d AND GAME_ROUND= %d 
+        AND PARTICIPANT_ONE_ID = %d AND PARTICIPANT_TWO_ID= %d 
+        AND PARTICIPANT_ONE_SCORE = %d AND PARTICIPANT_TWO_SCORE = %d"""
+        try:
+            for each in data:
+                cursor.execute(sql_check_exist % each)
+                if cursor.fetchall():
+                    return "fail"
+        except:
+            pass
+        sql_insert = """INSERT INTO HISTORY(GAME_ID,GAME_ROUND,PARTICIPANT_ONE_ID,PARTICIPANT_TWO_ID,PARTICIPANT_ONE_SCORE,PARTICIPANT_TWO_SCORE)
         VALUES(%d,%d,%d,%d,%d,%d)"""
         try:
             for each in data:
@@ -788,6 +799,7 @@ class DatabaseOperations():
             for each in looser:
                 match_team_pair.append(each)
             match_team_pair = self.knock_method(match_team_pair)
+            match_team_pair.append('final_round')
         elif len(next_round_member) == 3:
             j = 0
             while j < len(next_round_member):

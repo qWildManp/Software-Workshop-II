@@ -13,7 +13,8 @@
 </head>
 <body>
 <h1 class="h1 mb-3 font-weight-normal text-center">
- {{ next_round_memeber }}{{ last_round_memeber }}{{ true_next_round_member }}  Game Name : {{ event_name }} Round {{ game_round }}
+    Game Name : {{ event_name }}
+    Round {{ game_round }}
 </h1>
 <div class="row">
     <div class=" text-center offset-md-1 col-10">
@@ -56,12 +57,13 @@
                 </table>
             {% endif %}
             {% if show_button %}
-            <button type="submit" class="btn btn-primary">Generate the next round</button>
+                <button type="submit" class="btn btn-primary">Generate the next round</button>
             {% endif %}
             {% if show_upload_history %}
                 <form method="post">
                     <input type="radio" name="upload" value="upload_history" checked hidden>
                     <button type="submit" class="btn btn-primary">Upload History</button>
+                    <h1>{{ message }}</h1>
                 </form>
             {% endif %}
         </form>

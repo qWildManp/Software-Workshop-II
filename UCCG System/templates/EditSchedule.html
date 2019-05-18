@@ -74,7 +74,7 @@
     </div>
 {% endif %}
 <h1 class="h1 mb-3 font-weight-normal">
-	&nbsp;<img src="schedule.svg" width="40" height="40" class="d-inline-block align-top" alt="">&nbsp;Edit a event:
+	&nbsp;<img src="../static/日程安排.svg" width="40" height="40" class="d-inline-block align-top" alt="">&nbsp;Edit a event:
 </h1>
 <div class="card shadow-lg p-3 mb-5 bg-white rounded" style="border:1px solid steelblue;padding-bottom: 20px ;padding-top: 20px">
     <div>
@@ -93,6 +93,8 @@
                         <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                             {% if event[2] == 'knock' and event[3] == 'onMatching' %}
                                 <a class="dropdown-item" href="editKnock/{{ event[0] }}">Edit Knock</a>
+                                {% elif event[2] == 'round' and event[3] == 'onMatching' %}
+                                <a class="dropdown-item" href="editKnock/{{ event[0] }}">Upload Result</a>
                             {% endif %}
                             <a class="dropdown-item" href="/editTime/{{ event[0] }}">Edit Time</a>
                             <a class="dropdown-item" href="/editScore/{{ event[0] }}">Edit Score</a>
@@ -143,6 +145,8 @@
             </form>
             </div>
         </div>
+    <br>
+     <div class="alert alert-warning" role="alert">NOTICE : Event need enough participants to start (Knock-out : at least 6 Single-round : at least 2)</div>
     </div>
 </div>
 <div class="row"><br><br></div>
