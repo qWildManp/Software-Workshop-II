@@ -230,16 +230,45 @@ def knock_index(game_id):
                            current_round=sql.view_score(game_id),
                            current_bye =sql.view_bye(game_id),
                            game_round=sql.find_event_game_round(game_id),
-                           show_button=show_button,show_upload_history=show_upload_history,
-                               next_round_memeber = next_round_memeber,
-                               last_round_memeber=last_round_memeber,true_next_round_member=sql.pick_next_round(game_id),
+                           show_button=show_button,
+                           show_upload_history=show_upload_history,
+                           message=message)
+
+
+
+@app.route('/uploadResult/<string:back>')
+def upload_back(back):
+    return redirect(url_for('find_event'))
+
+
+@app.route('/uploadResult/<int:game_id>',methods=['POST','GET'])
+def upload_index(game_id):
+    sql = DatabaseOperations()
+    message = ""
+    show_upload_history = True
+    next_round_memeber = set(sql.pick_next_round(game_id))
+    last_round_memeber = set(sql.pick_participants(game_id))
+    if len(next_round_memeber) < len(last_round_memeber) / 2:
+        show_upload_history = False
+    else:
+        message = "All match is over"
+    if request.method == 'POST':
+        upload_result = sql.upload_history(game_id)
+        if upload_result == "success":
+            message = "Upload Success!!"
+            alert = "alert-success"
+            location = "ScheduleManagement"
+            return render_template('Result.html', message=message, alert=alert, location=location)
+        elif upload_result == "fail":
+            message = "Upload Fail!! You have already upload the history"
+            alert = "alert-danger"
+            location = "ScheduleManagement"
+            return render_template('Result.html', message=message, alert=alert, location=location)
+    else:
+        return render_template('uploadResult.html', event_name=sql.find_event_name(game_id),
+                               current_round=sql.view_score(game_id),
+                               show_upload_history=show_upload_history,
                                message=message)
-
-
-
-
-
-
 
 @app.route('/viewPage/<string:back>')
 def view_back(back):
