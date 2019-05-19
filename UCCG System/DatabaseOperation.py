@@ -453,7 +453,7 @@ class DatabaseOperations():
         game_limit = self.check_game_limit(game_id)
         cursor = self.__db.cursor()
         if (game_limit == 1):
-            sql_view = """SELECT DISTINCT T1.TEAM_ID, T1.TEAM_NAME
+            sql_view = """SELECT DISTINCT T1.TEAM_ID, T1.TEAM_NAME,MATCH_ARRANGE.GAME_ID
                     FROM MATCH_ARRANGE, TEAM as T1
                     WHERE T1.TEAM_ID = TEAM_ID_ONE AND TEAM_ID_TWO = 0 AND ARR_TIME = 0 AND GAME_ID= %d""" % (game_id)
             try:
@@ -463,7 +463,7 @@ class DatabaseOperations():
             except:
                 pass
         elif(game_limit == 2):
-            sql_view = """SELECT T1.STUDENT_ID,T1.USER_NAME 
+            sql_view = """SELECT T1.STUDENT_ID,T1.USER_NAME,MATCH_ARRANGE_INDIVIDUAL.GAME_ID
                         FROM  USER  AS T1 , MATCH_ARRANGE_INDIVIDUAL
                         WHERE T1.STUDENT_ID = STUDENT_ID_ONE AND STUDENT_ID_TWO =0 AND ARR_TIME =0 AND GAME_ID = %d""" % (game_id)
             try:
@@ -671,7 +671,7 @@ class DatabaseOperations():
                 winner.append(each)
             bye = self.view_bye(game_id)
             if bye:
-                winner.append(bye)
+                winner.append(bye[0])
             return winner
         except:
             pass
