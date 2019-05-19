@@ -58,7 +58,7 @@
                         <td>
                             <div class="col-12">
                                 <br>
-                                <input name="date"  type="datetime-local" min="1999-01-01T00:00" max="9999-12-30T23:59" class="form-control" required>
+                                <input name="date" id="date_control" type="datetime-local" onfocus="control_date()"  max="9999-12-30T23:59" class="form-control" required>
                                 <input type="radio" name="infor" value="{{ row[0] }}/{{ row[2] }}"  style="display: none" checked><br>
                             </div>
                         </td>
@@ -95,6 +95,17 @@
     <a class="btn btn-primary" href="EditSchedule">Back</a>
 </div>
 <br><br>
+<script>
+    function  control_date() {
+        var date_now = new Date();
+        var year = date_now.getFullYear();
+        var month = date_now.getMonth()+1 < 10 ? "0"+(date_now.getMonth()+1) : (date_now.getMonth()+1);
+        var date = date_now.getDate() < 10 ? "0" + date_now.getDate() : date_now.getDate();
+        var hour = date_now.getHours() < 10 ? "0"+date_now.getHours() : date_now.getHours();
+        var min = date_now.getMinutes() < 10 ? "0"+date_now.getMinutes() : date_now.getMinutes()
+        $("#date_control").attr("min",year+"-"+month+"-"+date+"T"+hour+":"+min)
+    }
+</script>
 <p class="mt-5 mb-3 text-muted text-center">©UIC-UCAS 2017-2019</p>
 <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
