@@ -352,8 +352,8 @@ class DatabaseOperations():
                 except:
                         pass
         elif(game_limit == 2):
-            sql_player = """SELECT PARTICIPATE_INDIVIDUAL.STUDENT_ID,USER.USER_NAME,PARTICIPATE_INDIVIDUAL.GAME_ID 
-            FROM PARTICIPATE_INDIVIDUAL NATURAL JOIN PLAYER NATURAL JOIN USER 
+            sql_player = """SELECT PARTICIPATE_INDIVIDUAL.STUDENT_ID,PLAYER.PLAYER_NAME,PARTICIPATE_INDIVIDUAL.GAME_ID 
+            FROM PARTICIPATE_INDIVIDUAL NATURAL JOIN PLAYER 
             WHERE GAME_ID = %d"""%(game_id)
             try:
                 cursor.execute(sql_player)
@@ -439,8 +439,8 @@ class DatabaseOperations():
             except:
                 pass
         elif(game_limit == 2):
-            sql_view = """SELECT T1.STUDENT_ID, T1.USER_NAME ,T2.STUDENT_ID,T2.USER_NAME ,ARR_TIME 
-            FROM  USER  AS T1 ,USER AS T2, MATCH_ARRANGE_INDIVIDUAL
+            sql_view = """SELECT T1.STUDENT_ID, T1.PLAYER_NAME ,T2.STUDENT_ID,T2.PLAYER_NAME ,ARR_TIME 
+            FROM  PLAYER  AS T1 ,PLAYER AS T2, MATCH_ARRANGE_INDIVIDUAL
             WHERE T1.STUDENT_ID = STUDENT_ID_ONE AND T2.STUDENT_ID = STUDENT_ID_TWO AND GAME_ID = %d""" % (game_id)
             try:
                 cursor.execute(sql_view)
@@ -463,8 +463,8 @@ class DatabaseOperations():
             except:
                 pass
         elif(game_limit == 2):
-            sql_view = """SELECT T1.STUDENT_ID,T1.USER_NAME,MATCH_ARRANGE_INDIVIDUAL.GAME_ID
-                        FROM  USER  AS T1 , MATCH_ARRANGE_INDIVIDUAL
+            sql_view = """SELECT T1.STUDENT_ID,T1.PLAYER_NAME,MATCH_ARRANGE_INDIVIDUAL.GAME_ID
+                        FROM  PLAYER  AS T1 , MATCH_ARRANGE_INDIVIDUAL
                         WHERE T1.STUDENT_ID = STUDENT_ID_ONE AND STUDENT_ID_TWO =0 AND ARR_TIME =0 AND GAME_ID = %d""" % (game_id)
             try:
                 cursor.execute(sql_view)
@@ -565,8 +565,8 @@ class DatabaseOperations():
             except:
                 pass
         elif(game_limit == 2):
-            sql_view = """SELECT T1.STUDENT_ID,T1.USER_NAME,T2.STUDENT_ID,T2.USER_NAME,PLAYER_ONE_SCORE,PLAYER_TWO_SCORE,ARR_TIME
-                        FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
+            sql_view = """SELECT T1.STUDENT_ID,T1.PLAYER_NAME,T2.STUDENT_ID,T2.PLAYER_NAME,PLAYER_ONE_SCORE,PLAYER_TWO_SCORE,ARR_TIME
+                        FROM MATCH_ARRANGE_INDIVIDUAL, PLAYER as T1 ,PLAYER as T2 ,MATCH_SCORE_INDIVIDUAL
                         WHERE T1.STUDENT_ID = STUDENT_ID_ONE 
                         AND T2.STUDENT_ID =STUDENT_ID_TWO AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
                         AND MATCH_SCORE_INDIVIDUAL.GAME_ID= %d""" % (game_id)
@@ -646,15 +646,15 @@ class DatabaseOperations():
                                 AND TEAM_ONE_SCORE < TEAM_TWO_SCORE 
                                 AND MATCH_SCORE.GAME_ID= %d""" % (game_id)
         elif game_limit == 2:
-            sql_winner_left = """SELECT T1.STUDENT_ID,T1.USER_NAME,MATCH_SCORE_INDIVIDUAL.GAME_ID
-                                    FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
+            sql_winner_left = """SELECT T1.STUDENT_ID,T1.PLAYER_NAME,MATCH_SCORE_INDIVIDUAL.GAME_ID
+                                    FROM MATCH_ARRANGE_INDIVIDUAL, PLAYER as T1 ,PLAYER as T2 ,MATCH_SCORE_INDIVIDUAL
                                     WHERE T1.STUDENT_ID = STUDENT_ID_ONE 
                                     AND T2.STUDENT_ID =STUDENT_ID_TWO 
                                     AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
                                     AND PLAYER_ONE_SCORE > PLAYER_TWO_SCORE 
                                     AND MATCH_SCORE_INDIVIDUAL.GAME_ID= %d""" % (game_id)
-            sql_winner_right = """SELECT T2.STUDENT_ID,T2.USER_NAME,MATCH_SCORE_INDIVIDUAL.GAME_ID
-                                            FROM MATCH_ARRANGE_INDIVIDUAL, USER as T1 ,USER as T2 ,MATCH_SCORE_INDIVIDUAL
+            sql_winner_right = """SELECT T2.STUDENT_ID,T2.PLAYER_NAME,MATCH_SCORE_INDIVIDUAL.GAME_ID
+                                            FROM MATCH_ARRANGE_INDIVIDUAL, PLAYER as T1 ,PLAYER as T2 ,MATCH_SCORE_INDIVIDUAL
                                             WHERE T1.STUDENT_ID = STUDENT_ID_ONE 
                                             AND T2.STUDENT_ID =STUDENT_ID_TWO 
                                             AND MATCH_ARRANGE_INDIVIDUAL.MATCH_ID = MATCH_SCORE_INDIVIDUAL.MATCH_ID 
@@ -728,7 +728,7 @@ class DatabaseOperations():
             sql_pick = """SELECT TEAM_ID,TEAM_NAME,GAME_ID FROM PARTICIPATE NATURAL JOIN TEAM 
             WHERE GAME_ID = %d""" % (game_id)
         elif game_limit == 2:
-            sql_pick = """ SELECT STUDENT_ID,USER_NAME,GAME_ID FROM PARTICIPATE_INDIVIDUAL NATURAL JOIN USER 
+            sql_pick = """ SELECT STUDENT_ID,PLAYER_NAME,GAME_ID FROM PARTICIPATE_INDIVIDUAL NATURAL JOIN PLAYER
             WHERE GAME_ID = %d""" % (game_id)
         try :
             cursor.execute(sql_pick)
