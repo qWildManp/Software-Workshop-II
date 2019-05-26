@@ -14,66 +14,65 @@
 </head>
 <body>
 
-<div class="container" style="margin-left: auto;margin-right: auto;">
 
+<div class="container" style="margin-left: auto;margin-right: auto;">
     <br>
     <h1 class="h1 mb-3 font-weight-normal text-center">Edit the competition time of {{ event_name }} below: There is(are) {{ count }} participant(s)</h1>
     <br>
-<div class="row">
-<div class="col-2">
-    {% if champion_contender %}
-         <h5>Champion Contender</h5>
-    {% endif %}
-    <br><br>
-    {% if champion_contender %}
-         <h5>Second Runner Contender</h5>
-    {% endif %}
-</div>
-<div class="col-10">
-    <table class="col-10 table-striped" style="margin:auto;text-align:center;">
-    {% if match_team_pair %}
-        {% for row in match_team_pair  %}
-            {% if row[3] == None %}
-                <tr>
-                    <form accept-charset="UTF-8" role="form"  method="post">
-                        <th>{{ row[1] }}</th>
-                        <td>
-                            <div class="col-12">
-                                <br>
-                                <input type="text" placeholder="Bye this round" class="form-control" disabled>
-                                <input value = "{{ row[0] }}" name="bye" type="radio"  style="display: none" checked ><br>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="col-12">
-                                <button class="btn btn-primary">Submit</button>
-                            </div>
-                        </td>
-                    </form>
-                </tr>
-            {% else %}
-                <tr>
-                    <form accept-charset="UTF-8" role="form"  method="post">
-                        <th>{{ row[1] }} VS {{ row[3] }}</th>
-                        <td>
-                            <div class="col-12">
-                                <br>
-                                <input name="date" id="date_control" type="datetime-local" onfocus="control_date()"  max="9999-12-30T23:59" class="form-control" required>
-                                <input type="radio" name="infor" value="{{ row[0] }}/{{ row[2] }}"  style="display: none" checked><br>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="col-12">
-                                <button class="btn btn-primary">Submit</button>
-                            </div>
-                        </td>
-                    </form>
-              </tr>
+    <div class="row">
+        <div class="col-2">
+            {% if champion_contender %}
+            <h5>Champion Contender</h5>
             {% endif %}
-        {% endfor %}
-    {% endif %}
-    </table>
-</div>
+            <br><br>
+            {% if champion_contender %}
+            <h5>Second Runner Contender</h5>
+            {% endif %}
+        </div>
+    <div class="col-10">
+        <table class="col-10 table-striped" style="margin:auto;text-align:center;">
+            {% if match_team_pair %}
+            {% for row in match_team_pair  %}
+                {% if row[3] == None %}
+                    <tr>
+                        <form accept-charset="UTF-8" role="form"  method="post">
+                            <th>{{ row[1] }}</th>
+                            <td>
+                                <div class="col-12">
+                                    <br>
+                                    <input type="text" placeholder="Bye this round" class="form-control" disabled>
+                                    <input value = "{{ row[0] }}" name="bye" type="radio"  style="display: none" checked ><br>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-12">
+                                    <button class="btn btn-primary">Submit</button>
+                                </div>
+                            </td>
+                        </form>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <form accept-charset="UTF-8" role="form"  method="post">
+                            <th>{{ row[1] }} VS {{ row[3] }}</th>
+                            <td>
+                                <div class="col-12">
+                                    <br>
+                                    <input name="date"  type="datetime-local" min="1999-01-01T00:00" max="9999-12-30T23:59" class="form-control" required>
+                                    <input type="radio" name="infor" value="{{ row[0] }}/{{ row[2] }}"  style="display: none" checked><br>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-12">
+                                    <button class="btn btn-primary">Submit</button>
+                                </div>
+                            </td>
+                        </form>
+                  </tr>
+                {% endif %}
+            {% endfor %}
+            {% endif %}
+        </table>
     </div><br><br>
     <table class="col-10 table-striped" style="margin:auto;text-align:center;">
         <tr><th>TEAM/PLAYER ONE</th><th>TEAM/PLAYER TWO</th><th>TIME</th></tr>
@@ -95,17 +94,6 @@
     <a class="btn btn-primary" href="EditSchedule">Back</a>
 </div>
 <br><br>
-<script>
-    function  control_date() {
-        var date_now = new Date();
-        var year = date_now.getFullYear();
-        var month = date_now.getMonth()+1 < 10 ? "0"+(date_now.getMonth()+1) : (date_now.getMonth()+1);
-        var date = date_now.getDate() < 10 ? "0" + date_now.getDate() : date_now.getDate();
-        var hour = date_now.getHours() < 10 ? "0"+date_now.getHours() : date_now.getHours();
-        var min = date_now.getMinutes() < 10 ? "0"+date_now.getMinutes() : date_now.getMinutes()
-        $("#date_control").attr("min",year+"-"+month+"-"+date+"T"+hour+":"+min)
-    }
-</script>
 <p class="mt-5 mb-3 text-muted text-center">©UIC-UCAS 2017-2019</p>
 <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

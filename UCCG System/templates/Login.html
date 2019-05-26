@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Welcome to UCCG Manage System</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+<body>
+<nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+        <img src="../static/CDS_LOGO.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#homeNavbar"
+            aria-controls="homeNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="homeNavbar">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Schedule</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Introduction</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">History about Us</a>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Login</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+    <br><h1 class="h1 mb-3 font-weight-normal text-center">Welcome to UCCG Manage System !</h1><br>
+    <div class="container-fluid bg-light" style="border:1px solid steelblue;padding-bottom: 20px ;padding-top: 20px">
+            <div class="row">
+                <div class="col-xs-3 col-md-3"></div>
+                <div class="col-xs-7 col-md-7" >
+                    <div class="row">
+                        <div class="col-xs-5 col-md-5">
+                            <form action="{{ url_for('login_check') }}" method="post">
+                                <h4 class="font-weight-normal">Login:</h4>
+                                <label for="inputAccount" class="sr-only"></label>User Account :<br>
+                                <input type="text" name="username" id="inputAccount" placeholder="User Student ID"
+                                       autofocus=""><br/>
+                                <label for="inputPassword" class="sr-only"></label>Password :<br>
+                                <input type="password" name="password" id="inputPassword" placeholder="Password">
+                                <div class="checkbox mb-3">
+                                    <label>
+                                        <input type="checkbox" value="remember-me"> Remember me&nbsp;
+                                    </label>
+                                    <br><a href = "{{url_for('lost')}}">Forget your password ?</a>
+                                </div>
+                                <button class="btn btn-sm btn-primary btn-" type="submit">Login</button>
+                                <strong>{{ message }}</strong>
+                                <br><br><img src="../static/CDS_LOGO.svg" width="200" height="200"><br>
+                            </form>
+                        </div>
+                        <div class="col-xs-2 col-md-2">
+                            <div style="float:left;margin-top: 30px;width: 1px;height:400px; background: darkgray;"></div>
+                        </div>
+                        <div class="col-xs-5 col-md-5">
+                            <img src="../static/CDS_LOGO.svg" width="300" height="300"><br><br>
+                            <a href="{{url_for('register')}}">New Comer? Click Here!!!</a>
+                        </div>
+                </div>
+                <div class="col-xs-2 col-md-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <p class="mt-5 mb-3 text-muted text-center">©UIC-UCAS 2017-2019</p>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>

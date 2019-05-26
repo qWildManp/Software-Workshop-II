@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Welcome to UCCG Manage System</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+<body>
+<nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+        <img src="../static/CDS_LOGO.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#homeNavbar"
+            aria-controls="homeNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="homeNavbar">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Schedule</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Introduction</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">History about Us</a>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('hello_world')}}">Login</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+ 
+        {% for message in messages %}
+            {% if "Error" not in message[1] %}
+                <div class="alert alert-info">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    {{ message[1] }}
+                </div>
+            {% endif %}
+ 
+            {% if "Error" in message[1] %}
+                <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                </button>
+                {{ message[1] }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<br>
+<h1 class="h1 mb-3 font-weight-normal text-center">Welcome to the Registration for UIC Game Competition Account:</h1>
+<br>
+<form action="" method="post" role="form">
+{{ form.csrf_token}}
+    <div class="form-group">
+        <div class="container-fluid bg-light" style="border:1px solid steelblue;padding-bottom: 20px ;padding-top: 20px">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-10">
+                    <div class="row">
+                        <div class="col-4">
+
+                            <label for="student_id" class="sr-only"></label>Student_id:<br>
+                            <input type="text" id="student_id" name = "student_id" class="form-control col-10" placeholder="Student_id"><br>
+                            <label for="mail" class="sr-only"></label>E-mail:<br>
+                            <input type="text" id="mail" name = "mail" class="form-control col-10" placeholder="E-mail"><br>
+                            <label for="username" class="sr-only"></label>User Name:<br>
+                            <input type="text" id="username" name = "username" class="form-control col-10" placeholder="User Name"><br>
+                            <label for="password" class="sr-only"></label>Your Password:<br>
+                            <input type="password" class="form-control col-10" id="password" name="password" placeholder="Password">
+                            <label for="confirm" class="sr-only"></label>Confirm your Password:<br>
+                            <input type="password" class="form-control col-10" id="confirm" name="confirm" placeholder="Comfirm your Password"><br>
+                            <br><br><img src="../static/CDS_LOGO.svg" width="150" height="150"><br>
+                        </div>
+                        <div class="col-1">
+                            <div style="float:left;margin-top: 30px;width: 1px;height:400px; background: darkgray;"></div>
+                        </div>
+                        <div class="col-7">
+                            Set your security Question1:
+                            <select id="security1" name="security1" class="col-3">
+                                <option value="1">[Question 1]</option>
+                                <option value="2">[Question 2]</option>
+                                <option value="3">[Question 3]</option>
+                                <option value="4">[Question 4]</option>
+                                <option value="5">[Question 5]</option>
+                            </select>
+                            <br>
+                            <label for="answer1" class="sr-only"></label>Answer1:<br>
+
+                            <input type="text" id="answer1" name="answer1" class="form-control col-7"><br>
+                            Set your security Question2:
+                            <select id="security2" class="col-3" name="security2">
+                                <option value="1">[Question 1]</option>
+                                <option value="2">[Question 2]</option>
+                                <option value="3">[Question 3]</option>
+                                <option value="4">[Question 4]</option>
+                                <option value="5">[Question 5]</option>
+                            </select>
+                            <br>
+                            <label for="answer2" class="sr-only"></label>Answer2:<br>
+                            <input type="text" id="answer2" name="answer2" class="form-control col-7"><br>
+
+                            Your phone number:<br>
+                            <input type="tel" id="pnumber" class="col-4" name="pnumber">
+                            <br><br>
+                            <br>
+                            <button class="btn btn-primary btn-sm col-3" type="submit">Register</button>
+                            <strong>{{message}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<p class="mt-5 mb-3 text-muted text-center">©UIC-UCAS 2017-2019</p>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+</html>

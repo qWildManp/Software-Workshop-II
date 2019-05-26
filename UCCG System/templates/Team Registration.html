@@ -1,0 +1,220 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Administrator Information Editing</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .btn-circle.btn-lg {
+            width: 40px;
+            height: 40px;
+            padding: 10px 16px;
+            font-size: 18px;
+            line-height: 1.33;
+            border-radius: 25px;
+        }
+    </style>
+    <script language="JavaScript">
+        function deleteQueryLine() {
+            var rows = document.getElementById('table1').rows.length;
+            document.getElementById("table1").deleteRow(rows - 1);
+        }
+
+        function addQueryline() {
+            var rows = document.getElementById('table1').rows.length;
+            if (queryForm.registration_type.value == 'team' && rows < 7){
+                var insertTr = document.getElementById("table1").insertRow(rows);
+                var insertTd = insertTr.insertCell(0);
+                insertTd.innerHTML ='<div class="input-group mb-3">' +
+                    ' <div class="input-group-prepend">' +
+                    ' <span class="input-group-text" id="basic-addon1">Team member ID:</span> </div> ' +
+                    '<input type="text" class="form-control" placeholder="Member ID" name="team_member'+rows+'" required>' +
+                    ' </div>';
+                insertTd = insertTr.insertCell(1);
+                insertTd.innerHTML = '<div class="input-group mb-3"><div class="input-group-prepend"> <span class="input-group-text">Position:</span></div> <select class="custom-select" name="signas' + rows + '">\n' +
+                    '                                <option value="member">Member</option>\n' +
+                    '                                <option value="alternative">Alternatives</option>\n' + '</select></div>';
+            }
+            else if(rows === 7){
+                alert("A team can have at most 8 members")
+                return;
+            }
+        }
+
+        function selectQueryTable() {
+            document.getElementById("table1").innerHTML = " ";
+            if (queryForm.registration_type.value == 'None') {
+                return;}
+            else if(queryForm.registration_type.value == 'individual'){
+                individual.style.display = 'list-item';
+                 addQueryCondition.style.display = 'none';
+                 teamLeaderInfo.style.display = 'none';
+            }
+            else{
+                 teamLeaderInfo.style.display = 'list-item';
+            addQueryCondition.style.display = 'list-item';
+            individual.style.display = 'none';
+            addQueryline();
+            }
+        }
+
+        function selectUpdateTable() {
+
+        }
+    </script>
+</head>
+
+
+<body>
+
+<nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">
+        <img src="../static/CDS_LOGO.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#homeNavbar"
+            aria-controls="homeNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="homeNavbar">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Schedule</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Introduction</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">History about Us</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">User Pages</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a href="{{ url_for('infoEdit') }}" class="dropdown-item"><img src="../static/用户符号.svg"
+                                                                                style="width: 20px; height:20px;"
+                                                                                aria-hidden="true"> Personal Info</a>
+                    {% if session.get('Authority') >= 1 %}
+                    <a class="dropdown-item" href="{{url_for('signupCompition')}}"><img src="../static/游戏手柄.svg" height="30" width="30"> Competition Sign up</a>
+                    {% endif %}
+                    <a href="#" class="dropdown-item"><img src="../static/标靶.svg"
+                                                                             style="width: 20px; height:20px;"
+                                                                             aria-hidden="true"> Player Registration</a>
+                </div>
+            </li>
+            {% if session.get('Authority') > 2 %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Administrator<span class="caret"></span></a>
+                <div class="dropdown-menu">
+                    {% if session.get('Authority') >=4 %}
+                    <a href="{{url_for('information_edit')}}" class="dropdown-item"><img src="../static/身份证.svg" style="width: 20px; height:20px;" aria-hidden="true"> Information Editing</a>
+                    {% endif %}
+                    <a href="{{url_for('schedule_mange')}}" class="dropdown-item"><img src="../static/日程安排.svg" style="width: 20px; height:20px;" aria-hidden="true"> Schedule Editing</a>
+                </div>
+            </li>
+            {% endif %}
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a class="nav-link" href="{{ url_for('infoEdit') }}">Hi,{{ session.get('username') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="offset-md-1"><h1 class="display-3 mb-3 font-weight-normal">Player Registration</h1>
+</div>
+<div class="col-sm-9 offset-md-1">
+    <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+        <div class="card-body">
+            <form name="queryForm" method="post">
+                <div class="form-row align-items-center">
+                    <div class="col-auto">
+                        <div class="input-group  mb-3">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><img src="../static/用户符号.svg" width="20" height="20"
+                                                                   aria-hidden="true"> Register as</div>
+                            </div>
+                            <select class="custom-select" name="registration_type"
+                                    onchange="selectQueryTable()">
+                                <option selected value="None">Select</option>
+                                <option value='individual'>Individual</option>
+                                <option value='team'>Team</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class=" mb-3" id="addQueryCondition" style="display: none">
+                        <button type="button" class="btn btn-outline-secondary" onclick="addQueryline()">
+                            <img src="../static/加号.svg" width="20" height="20" aria-hidden="true">
+                            Add a team member
+                        </button>
+
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteQueryLine()">
+                            <img src="../static/减号.svg" width="20" height="20" aria-hidden="true">
+                            Delete a team member
+                        </button>
+                    </div>
+                </div>
+                <div class="form-row align-items-center" id="teamLeaderInfo" style="display: none">
+                    <div class="col-auto">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Team Name</span>
+                            </div>
+                            <input type="text" class="form-control" name="team_name" placeholder="Teamname" required>
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Team Leader Id</span>
+                            </div>
+                            <input type="text" class="form-control" name="leader_id" placeholder="Team Leader ID" required>
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Password</span>
+                            </div>
+                            <input type="password" class="form-control" name="leader_pwd" placeholder="Password" required>
+                        </div>
+                        <table id="table1">
+                        </table>
+                        <button class="btn btn-primary" type="submit">Confirm</button>
+                    </div>
+                </div>
+
+                <br>
+            </form>
+            <form method="post" >
+                <div class=" mb-3" id="individual" style="display: none">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">User ID = </span>
+                        </div><input type="text" name="studentId" class="form-control col-auto" placeholder="ID input:" required>
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Password = </span>
+                        </div> <input type="password" name="user_password" class="form-control col-auto" placeholder="Password:" required>
+                     </div>
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </div>
+            </form>
+            <strong>{{ message }}</strong>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+</html>

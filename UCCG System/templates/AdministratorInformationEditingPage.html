@@ -123,35 +123,32 @@
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">User Pages</a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a href="Personal%20Information" class="dropdown-item"><img src="../static/用户符号.svg"
-                                                                                style="width: 20px; height:20px;"
-                                                                                aria-hidden="true"> Personal Info</a>
-                    <a href="CompetitionSignUpPage" class="dropdown-item"><img src="../static/游戏手柄.svg"
-                                                                               style="width: 20px; height:20px;"
-                                                                               aria-hidden="true"> Competition Sign
-                        up</a>
-                    <a href="Team%20Registration" class="dropdown-item"><img src="../static/标靶.svg"
-                                                                             style="width: 20px; height:20px;"
-                                                                             aria-hidden="true"> Player Registration</a>
+                    <a href="{{ url_for('infoEdit') }}" class="dropdown-item"><img src="../static/用户符号.svg" style="width: 20px; height:20px;" aria-hidden="true"> Personal Info</a>
+                    {% if session.get('Authority') >= 1 %}
+                    <a class="dropdown-item" href="{{url_for('signupCompition')}}"><img src="../static/游戏手柄.svg" height="30" width="30"> Competition Sign up</a>
+                    {% endif %}
+                    <a href="{{ url_for('TeamRegistration') }}" class="dropdown-item"><img src="../static/标靶.svg" style="width: 20px; height:20px;" aria-hidden="true"> Player
+                        Registration</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">Administrator<span class="caret"></span></a>
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false"> Administrator<span class="caret"></span></a>
                 <div class="dropdown-menu">
-                    <a href="AdministratorInformationEditingPage" class="dropdown-item"><img src="../static/身份证.svg"
-                                                                                             style="width: 20px; height:20px;"
-                                                                                             aria-hidden="true">
+                    <a href="{{ url_for('information_edit') }}" class="dropdown-item"><img src="../static/身份证.svg"
+                                                                                           style="width: 20px; height:20px;"
+                                                                                           aria-hidden="true">
                         Information Editing</a>
-                    <a href="ScheduleManagement" class="dropdown-item"><img src="../static/日程安排.svg"
-                                                                      style="width: 20px; height:20px;"
-                                                                      aria-hidden="true"> Schedule Editing</a>
+                    <a href="{{ url_for('schedule_mange') }}" class="dropdown-item"><img src="../static/日程安排.svg"
+                                                                                         style="width: 20px; height:20px;"
+                                                                                         aria-hidden="true"> Schedule
+                        Editing</a>
                 </div>
             </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li><a class="nav-link" href="Personal%20Information">Hi,____</a></li>
-            <li class="nav-item"><a class="nav-link" href="Login">Logout</a></li>
+            <li><a class="nav-link" href="{{ url_for('infoEdit') }}">Hi, {{ session.get('username') }}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
     </div>
 </nav>
@@ -164,9 +161,9 @@
             <div class="card-header">
                 <h1>Result</h1>
             </div>
-            {% if result == 'success' %}
+            {% if table == '' %}
                 <div class="card-body">
-                    <h2>Success!</h2>
+                    <h2>{{ result }}</h2>
                 </div>
             {% else %}
                 <div class="card-body">
@@ -207,10 +204,13 @@
                                 <td>{{ event[0] }}</td>
                                 <td>{{ event[1] }}</td>
                                 <td>{{ event[2] }}</td>
-                                <td>{{ event[3] }}</td>
-                                <td>{{ event[4] }}</td>
-                                <td>{{ event[5] }}</td>
-
+                                {% if table == 'game' or table == 'user' %}
+                                    <td>{{ event[3] }}</td>
+                                    <td>{{ event[4] }}</td>
+                                    {% if table == 'user' %}
+                                        <td>{{ event[9] }}</td>
+                                    {% endif %}
+                                {% endif %}
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -258,7 +258,7 @@
                 </table>
                 <br>
                 <button type="submit" id="informationQueryButton" class="btn btn-primary mb-3" style="display: none">
-                    Query!
+                    Query
                 </button>
             </form>
         </div>
@@ -288,7 +288,7 @@
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary"> Query!</button>
+                <button type="submit" class="btn btn-primary"> Update</button>
             </form>
         </div>
     </div>

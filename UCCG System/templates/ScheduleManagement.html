@@ -35,27 +35,33 @@
 				<a class="nav-link" href="#">History about Us</a>
 			</li>
              <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">User Pages</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">User Pages</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a href="Personal%20Information" class="dropdown-item"><img src="../static/用户符号.svg" style="width: 20px; height:20px;" aria-hidden="true"> Personal Info</a>
-                        <a href="CompetitionSignUpPage" class="dropdown-item"><img src="../static/游戏手柄.svg" style="width: 20px; height:20px;" aria-hidden="true"> Competition Sign up</a>
-                        <a href="Team%20Registration" class="dropdown-item"><img src="../static/标靶.svg" style="width: 20px; height:20px;" aria-hidden="true"> Player Registration</a>
+                        <a href="{{url_for('infoEdit')}}" class="dropdown-item"><img src="../static/用户符号.svg" style="width: 20px; height:20px;" aria-hidden="true"> Personal Info</a>
+                        {% if session.get('Authority') >= 1 %}
+                        <a href="{{url_for('signupCompition')}}" class="dropdown-item"><img src="../static/游戏手柄.svg" style="width: 20px; height:20px;" aria-hidden="true"> Competition Sign up</a>
+                        {% endif %}
+                        <a href="{{url_for('TeamRegistration')}}" class="dropdown-item"><img src="../static/标靶.svg" style="width: 20px; height:20px;" aria-hidden="true"> Player Registration</a>
                     </div>
              </li>
-             <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrator<span class="caret"></span></a>
-                    <div class="dropdown-menu">
-                        <a href="AdministratorInformationEditingPage" class="dropdown-item"><img src="../static/身份证.svg" style="width: 20px; height:20px;" aria-hidden="true"> Information Editing</a>
-                        <a href="ScheduleManagement" class="dropdown-item"><img src="../static/日程安排.svg" style="width: 20px; height:20px;" aria-hidden="true"> Schedule Editing</a>
-                    </div>
-                </li>
+			{% if session.get('Authority') > 2 %}
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Administrator<span class="caret"></span></a>
+				<div class="dropdown-menu">
+					{% if session.get('Authority') >=4 %}
+					<a href="{{url_for('information_edit')}}" class="dropdown-item"><img src="../static/身份证.svg" style="width: 20px; height:20px;" aria-hidden="true"> Information Editing</a>
+					{% endif %}
+					<a href="{{url_for('schedule_mange')}}" class="dropdown-item"><img src="../static/日程安排.svg" style="width: 20px; height:20px;" aria-hidden="true"> Schedule Editing</a>
+				</div>
+			</li>
+			{% endif %}
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
             <li class="nav-item">
-                <a class="nav-link" href="Personal%20Information">Hi,____</a>
+                <a class="nav-link" href="{{url_for('infoEdit')}}">Hi,{{session.get('username')}}</a>
             </li>
 			<li class="nav-item">
-				<a class="nav-link" href="Login">Logout</a>
+				<a class="nav-link" href="{{url_for('logout')}}">Logout</a>
 			</li>
 		</ul>
 	</div>

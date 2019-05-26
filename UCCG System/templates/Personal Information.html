@@ -10,6 +10,7 @@
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">
@@ -34,24 +35,32 @@
                 <a class="nav-link" href="#">History about Us</a>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">
-                    User Page
-                </a>
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> User Page</a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="Personal Information"><img src="../static/用户符号.svg" height="30"
-                                                                              width="30">Personal Information</a>
-                    <a class="dropdown-item" href="CompetitionSignUpPage"><img src="../static/handle.svg" height="30" width="30">Competition Sign
-                        up</a>
-                    <a class="dropdown-item" href="Team Registration"><img src="../static/标靶.svg" height="30" width="30">Player Registration</a>
+                    <a class="dropdown-item" href="#"><img src="../static/用户符号.svg" height="30" width="30"> Personal Information</a>
+                    {% if session.get('Authority') >= 1 %}
+                    <a class="dropdown-item" href="{{url_for('signupCompition')}}"><img src="../static/游戏手柄.svg" height="30" width="30"> Competition Sign up</a>
+                    {% endif %}
+                    <a class="dropdown-item" href="{{url_for('TeamRegistration')}}"><img src="../static/标靶.svg" height="30" width="30"> Player Registration</a>
                 </div>
             </li>
+            {% if session.get('Authority') > 2 %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Administrator<span class="caret"></span></a>
+                <div class="dropdown-menu">
+                    {% if session.get('Authority') >=4 %}
+                    <a href="{{url_for('information_edit')}}" class="dropdown-item"><img src="../static/身份证.svg" style="width: 20px; height:20px;" aria-hidden="true"> Information Editing</a>
+                    {% endif %}
+                    <a href="{{url_for('schedule_mange')}}" class="dropdown-item"><img src="../static/日程安排.svg" style="width: 20px; height:20px;" aria-hidden="true"> Schedule Editing</a>
+                </div>
+            </li>
+            {% endif %}
         </ul>
         <ul class="navbar-nav nav-right">
             <li class="nav-item">
-                <a class="nav-link" href="Personal Information.html">Hi, {{ Name }}</a></li>
+                <a class="nav-link" href="#">Hi, {{ Name }}</a></li>
             <li class="nav-item">
-                <a class="nav-link" href="Login">Logout</a>
+                <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
             </li>
         </ul>
     </div>
@@ -76,7 +85,8 @@
                 </div>
                 <div class="col-xs-2 col-md-2">
                     <button class="btn btn-block btn-warning" data-toggle="modal" data-target="#logoutModal1">Edit</button>
-                </div></div>
+                </div>
+            </div>
         </div>
         <div class="row"><br><br></div>
         <div class="row">
@@ -87,6 +97,7 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
+                        <th scope="col">Team Name</th>
                         <th scope="col">Status</th>
                         <th scope="col">Forbidden</th>
                         <th scope="col">Position</th>
@@ -107,10 +118,16 @@
                         </tr>
                     {% endif %}
                     </tbody>
-                </table><hr>
+                </table>
+                {% if Authority>=2 %}
+                <div class="col-xs-3 col-md-2">
+                    <button class="btn btn-block btn-warning" data-toggle="modal" data-target="#logoutModal2">Edit</button>
+                </div>
+                {% endif %}
+                <hr>
                 <div class="row"><br></div>
-                {% if Authority== 2 %}
-                <form accept-charset="UTF-8" role="form" action="{{ url_for('inforEdit') }}" method="post">
+                {% if Authority>= 2 %}
+                <form accept-charset="UTF-8" role="form" action="{{ url_for('infoEdit') }}" method="post">
                     <h4 class="fon-weight-normal">Leader Transformation:</h4><br>
                     <div class="form-group col-sm-4">
                         <div class="input-group mb-3">
@@ -129,6 +146,10 @@
                         <div class="form-group">
                             <label for="formGroupExampleInput">Input the new Leader's student ID:</label>
                             <input type="text" class="form-control" name="newLeader" id="formGroupExampleInput1" aria-describedby="nameHelp" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Input the your team ID which your want to transform:</label>
+                            <input type="text" class="form-control" name="curTeam" id="formGroupExampleInput1" aria-describedby="nameHelp" placeholder="">
                         </div>
                         <div class="form-group">
                             <label for="formGroupExampleInput">Input your password:</label>
@@ -154,19 +175,19 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <form accept-charset="UTF-8" role="form" action="{{ url_for('inforEdit') }}" method="post">
+                <form accept-charset="UTF-8" role="form" action="{{ url_for('infoEdit') }}" method="post">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="formGroupExampleInput">Name</label>
-                            <input type="text" class="form-control" name="newname" id="formGroupExampleInput" aria-describedby="nameHelp" placeholder="{{Name}}">
+                            <label for="formGroupExampleInput1">Name</label>
+                            <input type="text" class="form-control" name="newname" id="formGroupExampleInput1" aria-describedby="nameHelp" placeholder="{{Name}}">
                         </div>
                         <div class="form-group">
-                            <label for="formGroupExampleInput">Email Address</label>
-                            <input type="text" class="form-control" name="newaddress" id="formGroupExampleInput" placeholder="{{Email}}">
+                            <label for="formGroupExampleInput2">Email Address</label>
+                            <input type="text" class="form-control" name="newaddress" id="formGroupExampleInput2" placeholder="{{Email}}">
                         </div>
                         <div class="form-group">
-                            <label for="formGroupExampleInput">Phone number</label>
-                            <input type="text" class="form-control" name="newnumber" id="formGroupExampleInput" placeholder="{{Phone}}">
+                            <label for="formGroupExampleInput3">Phone number</label>
+                            <input type="text" class="form-control" name="newnumber" id="formGroupExampleInput3" placeholder="{{Phone}}">
                         </div>
                         <div class="form-group">
                             <div class="input-group mb-3">
@@ -178,14 +199,32 @@
                                     <option value="Q1" selected>One</option>
                                     <option value="Q2">Two</option>
                                     <option value="Q3">Three</option>
+                                    <option value="Q4">Four</option>
+                                    <option value="Q5">Five</option>
                                     {% elif Q1=="Q2" %}
                                     <option value="Q1">One</option>
                                     <option value="Q2" selected>Two</option>
                                     <option value="Q3">Three</option>
+                                    <option value="Q4">Four</option>
+                                    <option value="Q5">Five</option>
+                                    {% elif Q1=="Q3" %}
+                                    <option value="Q1">One</option>
+                                    <option value="Q2" >Two</option>
+                                    <option value="Q3" selected>Three</option>
+                                    <option value="Q4">Four</option>
+                                    <option value="Q5">Five</option>
+                                    {% elif Q1=="Q3" %}
+                                    <option value="Q1">One</option>
+                                    <option value="Q2" >Two</option>
+                                    <option value="Q3">Three</option>
+                                    <option value="Q4" selected>Four</option>
+                                    <option value="Q5">Five</option>
                                     {% else %}
                                     <option value="Q1">One</option>
-                                    <option value="Q2" selected>Two</option>
-                                    <option value="Q3" selected>Three</option>
+                                    <option value="Q2" >Two</option>
+                                    <option value="Q3">Three</option>
+                                    <option value="Q4">Four</option>
+                                    <option value="Q5" selected>Five</option>
                                     {% endif %}
                                 </select>
                             </div>
@@ -199,18 +238,36 @@
                                     <label class="input-group-text" for="inputGroupSelect01">Security Question 2:</label>
                                 </div>
                                 <select class="custom-select" name="newQ2" id="inputGroupSelect01">
-                                    {% if Q2=="Q1" %}
+                                    {% if Q1=="Q1" %}
                                     <option value="Q1" selected>One</option>
                                     <option value="Q2">Two</option>
                                     <option value="Q3">Three</option>
-                                    {% elif Q2=="Q2" %}
+                                    <option value="Q4">Four</option>
+                                    <option value="Q5">Five</option>
+                                    {% elif Q1=="Q2" %}
                                     <option value="Q1">One</option>
                                     <option value="Q2" selected>Two</option>
                                     <option value="Q3">Three</option>
+                                    <option value="Q4">Four</option>
+                                    <option value="Q5">Five</option>
+                                    {% elif Q1=="Q3" %}
+                                    <option value="Q1">One</option>
+                                    <option value="Q2" >Two</option>
+                                    <option value="Q3" selected>Three</option>
+                                    <option value="Q4">Four</option>
+                                    <option value="Q5">Five</option>
+                                    {% elif Q1=="Q3" %}
+                                    <option value="Q1">One</option>
+                                    <option value="Q2" >Two</option>
+                                    <option value="Q3">Three</option>
+                                    <option value="Q4" selected>Four</option>
+                                    <option value="Q5">Five</option>
                                     {% else %}
                                     <option value="Q1">One</option>
-                                    <option value="Q2" selected>Two</option>
-                                    <option value="Q3" selected>Three</option>
+                                    <option value="Q2" >Two</option>
+                                    <option value="Q3">Three</option>
+                                    <option value="Q4">Four</option>
+                                    <option value="Q5" selected>Five</option>
                                     {% endif %}
                                 </select>
                             </div>
@@ -224,6 +281,86 @@
                         <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+        <div class="modal fade bs-example-modal-lg" id="logoutModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabe2">Manage youre team:</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <form accept-charset="UTF-8" name="teamTableForm" role="form" action="{{ url_for('infoEdit') }}" method="post">
+                        <div class="modal-body">
+{#                    --------------------------------------------------------------------------------------------------------------------------#}
+                            <table class="table table-hover" id="table1">
+                                <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Team Name</th>
+                                    <th scope="col">Position</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if tableDatas %}
+                                    {% for i in tableDatas %}
+                                        {% set length=loop.index %}
+                                        {% if i[5] != "Team Leader" %}
+                                            <tr>
+                                            {% for j in range(0,3) %}
+                                                {% if i[5] != "Team Leader" %}
+                                                    {% if j == 0 %}
+                                                        <td><div class="form-group"><input type="text" class="form-control" name="memberID{{length}}" aria-describedby="nameHelp" placeholder="{{i[j]}}" value="{{i[j]}}"></div></td>
+                                                    {% elif j == 2  %}
+                                                        <td><div class="form-group"><input type="text" class="form-control" name="teamBelong{{length}}" aria-describedby="nameHelp" placeholder="{{i[j]}}" value="{{i[j]}}"></div></td>
+                                                    {% else %}
+                                                        <td>{{i[j]}}</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            <td>
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                            {% if i[5] != "Team Leader" %}
+                                                                {% if i[5]=="alter" %}
+                                                                    <select class="custom-select" name="newPosition{{length}}" id="inputGroupSelect04">
+                                                                        <option value="alternatives" selected>Alternative</option>
+                                                                        <option value="member">Team member</option>
+                                                                    </select>
+                                                                {% else %}
+                                                                    {% if i[5] != "Team Leader" %}
+                                                                        <select class="custom-select" name="newPosition{{length}}" id="inputGroupSelect05">
+                                                                            <option value="alternatives">Alternative</option>
+                                                                            <option value="member" selected>Team member</option>
+                                                                        </select>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" >No Information</td>
+                                </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" type="submit">Save</button>
+                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        </div>
+{#                    ------------------------------------------------------------------------------------------------------------------------#}
+                    </form>
+                </div>
             </div>
         </div>
     </div>
